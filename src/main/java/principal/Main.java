@@ -12,6 +12,8 @@ import java.util.Scanner;
 import com.quimnv.modelo.Perfiles;
 import com.quimnv.modelo.Sesion;
 
+import utils.Utilidades;
+
 /**
  * Circo
  * 
@@ -36,11 +38,11 @@ public class Main {
 			case 0:
 				if (actual.getPerfil().equals(Perfiles.INVITADO)){
 					System.out.println("Ha elegido SALIR. ¿Es correcto?");
-					//confirmarsalir = Utilidades.LeerBoolean();
+					confirmarsalir = Utilidades.leerBoolean();
 					break;
 				} else {
 					System.out.println("Ha elegido CERRAR SESIÓN. ¿Es correcto?");
-					//confirmarsalir = Utilidades.LeerBoolean();
+					confirmarsalir = Utilidades.leerBoolean();
 
 				}
 			}
