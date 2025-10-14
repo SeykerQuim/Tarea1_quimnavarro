@@ -65,49 +65,7 @@ public class Main {
 		return seleccion;
 	}
 
-//	private static Sesion login(String nombre, String contrassenya) {
-//		Sesion ret = new Sesion("invitado", Perfiles.INVITADO);
-//		// Comprobamos si las credenciales son de Admin
-//		Properties propiedades = new Properties();
-//		try (FileInputStream entrada = new FileInputStream("src/main/resources/application.properties")) {
-//			propiedades.load(entrada);
-//		} catch (IOException e) {
-//			System.err.println("IOException al cargar el fichero de application.properties: \n");
-//			e.printStackTrace();
-//		}
-//		String usuarioAdmin = propiedades.getProperty("usuarioAdmin");
-//		String contrassenyaAdmin = propiedades.getProperty("passwordAdmin");
-//		
-//		if (nombre.equals(usuarioAdmin) && contrassenya.equals(contrassenyaAdmin)) {
-//			ret.setNombre(nombre);
-//			ret.setPerfil(Perfiles.ADMIN);
-//			System.out.println("\n\t<<< Ud. se ha autenticado como ADMIN. >>>\n");
-//			return ret;
-//		}
-//
-//		String path = propiedades.getProperty("ficherocredenciales");
-//		FileReader lector = null;
-//		File fichero = new File(path);
-//		BufferedReader br = null;
-//		try {
-//			lector = new FileReader(fichero);
-//			br = new BufferedReader(br);
-//			String linea;
-//
-//			while ((linea = br.readLine()) != null) {
-//				String[] campos = linea.split("\\|");
-//				if (campos.length < 7 ) {
-//					continue;
-//				}
-//				if () {
-//					
-//				}
-//
-//			}
-//		} catch (Exception e) {
-//			// TODO: handle exception
-//		}
-//	}
+
 
 	public boolean esValido() {
 		while (true) {
