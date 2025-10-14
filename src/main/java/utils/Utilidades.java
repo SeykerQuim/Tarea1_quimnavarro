@@ -35,7 +35,7 @@ public class Utilidades {
 		return ret;
 	}
 	
-	public static int leerInt() {
+	public static int leerEntero() {
 		int ret = -1;
 		do {
 			Scanner in = new Scanner(System.in);
