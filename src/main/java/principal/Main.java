@@ -16,6 +16,7 @@ import com.quimnv.modelo.Perfiles;
 import com.quimnv.modelo.Sesion;
 
 import utils.Utilidades;
+import utils.Utilidades.*;
 
 /**
  * Circo
@@ -58,35 +59,94 @@ public class Main {
 				break;
 			case 1: 
 			default:
-				actual = submenuSesion(actual, opcion);
+//				actual = submenuSesion(actual, opcion);
 			}
 		} while (!confirmarsalir);
 
 	}
 	
-	private static Sesion submenuSesion(Sesion actual, int opcion) {
-		switch (actual.getPerfil()) {
-		case INVITADO:
-			switch (opcion) {
-			case 1:
-				System.out.println("Ver espectáculos del circo:");
-				break;
-			case 2:
-				System.out.println("\n<<<\tEntrando en el menú de acceso al usuario\t>>>");
-				actual = Login();
-				break;
-			default:
-				break;
+//	private static Sesion submenuSesion(Sesion actual, int opcion) {
+//		switch (actual.getPerfil()) {
+//		case INVITADO:
+//			switch (opcion) {
+//			case 1:
+//				System.out.println("Ver espectáculos del circo:");
+//				break;
+//			case 2:
+//				System.out.println("\n<<<\tEntrando en el menú de acceso al usuario\t>>>");
+//				actual = Login();
+//				break;
+//			default:
+//				break;
+//			}
+//			break;
+//
+//		default:
+//			break;
+//		}
+//		
+//		return ret;
+//	}
+
+	private static Sesion Login() {
+		Sesion ret = new Sesion();
+		System.out.println("\t<<<\tBienvenido al menú de acceso\t>>>");
+		boolean valido=false;
+		do {
+			System.out.println("\t\t\tPor favor, introduce tu usuario:");
+			String user = Utilidades.leerString();
+			System.out.println("\t\t\tPor favor, introduce tu contraseña:");
+			String contrassenya = Utilidades.leerString();
+			Properties propiedades = new Properties();
+			try (FileInputStream entrada = new FileInputStream("src/main/resources/application.properties")){
+				propiedades.load(entrada);
+			} catch (IOException e) {
+				System.err.println("Error de Excepción de tipo IOException al cargar el fichero ");
+				e.printStackTrace();
 			}
-			break;
+			
+			// Comprobamos los datos del admin primero
+			String usuarioAdmin = propiedades.getProperty("usuarioAdmin");
+			String contrassenyaAdmin = propiedades.getProperty("passwordAdmin");
+			
+			if (user.equals(usuarioAdmin) && contrassenya.equals(contrassenyaAdmin)) {
+				ret.setNombre(usuarioAdmin);
+				ret.setPerfil(Perfiles.ADMIN);
+				System.out.println("\n\t<<<\t¡Bienvenido! Se ha autenticado usted como administrador.\t>>>\n");
+				
+				valido = true;
+			}
+			
+			// Comprobamos el archivo de credenciales
+			String ruta = propiedades.getProperty("ficherocredenciales");
+			FileReader lector = null;
+			File fichero = new File(ruta);
+			BufferedReader br = null;
+			
+			try {
+				lector = new FileReader(fichero);
+				br = new BufferedReader(br);
+				String linea;
+				
+				while ((linea = br.readLine()) != null) {
+					String[] campos = linea.split("\\|");
+					if (campos.length < 7) {
+						continue;
+					}
+					// El fichero credenciales.txt sigue esta plantilla para cada línea:
+				    //  idpersonal|nombre_usuario|password|email|nombre_persona
+					
+				}
+			} catch (Exception e) {
+				// TODO: handle exception
+			}
+			
+			
+		} while (!valido);
 
-		default:
-			break;
-		}
-		
 		return ret;
+		
 	}
-
 	
 	private static int seleccionarOpcion(Sesion actual) {
 		// TODO Auto-generated method stub

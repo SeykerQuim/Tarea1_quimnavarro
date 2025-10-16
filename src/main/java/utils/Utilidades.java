@@ -95,5 +95,21 @@ public class Utilidades {
 		} while (!correcto);
 		return ret;
 	}
+	
+	public static String leerString() {
+		String ret = null;
+		Scanner in = new Scanner(System.in, "ISO-8859-1");
+		
+		do {
+			try {
+				ret = in.nextLine();
+			} catch (Exception e) {
+				// TODO: handle exception
+			}
+		} while (ret == null && ret.isEmpty());
+	
+				
+		return ret;
+	}
 
 }
