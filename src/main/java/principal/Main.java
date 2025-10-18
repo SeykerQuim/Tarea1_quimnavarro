@@ -7,6 +7,7 @@ import java.io.FileInputStream;
 import java.io.FileReader;
 import java.io.IOException;
 import java.security.PrivateKey;
+import java.util.Iterator;
 import java.util.Properties;
 import java.util.Scanner;
 
@@ -35,7 +36,7 @@ public class Main {
 		int opcion = -1;
 
 		do {
-			System.out.println("\n\n<<<\tPrograma de gestión del circo\t>>>");
+			System.out.println("\n=== Programa de gestión del circo ===\n-------------------------------------");
 			System.out.println("Hola "+actual.getNombre()+". Su perfil es de tipo: "+actual.getPerfil());
 			opcion = seleccionarOpcion(actual);
 			switch (opcion) {
@@ -59,43 +60,49 @@ public class Main {
 				break;
 			case 1: 
 			default:
-//				actual = submenuSesion(actual, opcion);
+				actual = submenuSesion(actual, opcion);
 			}
 		} while (!confirmarsalir);
 
 	}
 	
-//	private static Sesion submenuSesion(Sesion actual, int opcion) {
-//		switch (actual.getPerfil()) {
-//		case INVITADO:
-//			switch (opcion) {
-//			case 1:
-//				System.out.println("Ver espectáculos del circo:");
-//				break;
-//			case 2:
-//				System.out.println("\n<<<\tEntrando en el menú de acceso al usuario\t>>>");
-//				actual = Login();
-//				break;
-//			default:
-//				break;
-//			}
-//			break;
-//
-//		default:
-//			break;
-//		}
-//		
-//		return ret;
-//	}
+	private static Sesion submenuSesion(Sesion actual, int opcion) {
+		Sesion ret = null;
+		switch (actual.getPerfil()) {
+		case INVITADO:
+			switch (opcion) {
+			case 1:
+				System.out.println("Ver espectáculos del circo:");
+				break;
+			case 2:
+				System.out.println("\n--- Entrando en el menú de acceso al usuario\n");
+				ret = Login();
+				break;
+			default:
+				break;
+			}
+			break;
 
+		default:
+			break;
+		}
+		
+		return ret;
+	}
+	
+	/**
+	 * Método de login con la entrada de datos del usuario y la comprobación de sus datos
+	 * 
+	 * @return Sesion del Perfil y Nombre facilitados
+	 */
 	private static Sesion Login() {
 		Sesion ret = new Sesion();
-		System.out.println("\t<<<\tBienvenido al menú de acceso\t>>>");
+		System.out.println("=== Bienvenido al menú de acceso ===\n-------------------------------------");
 		boolean valido=false;
 		do {
-			System.out.println("\t\t\tPor favor, introduce tu usuario:");
+			System.out.print("Por favor, introduce tu usuario:");
 			String user = Utilidades.leerString();
-			System.out.println("\t\t\tPor favor, introduce tu contraseña:");
+			System.out.print("Por favor, introduce tu contraseña:");
 			String contrassenya = Utilidades.leerString();
 			Properties propiedades = new Properties();
 			try (FileInputStream entrada = new FileInputStream("src/main/resources/application.properties")){
@@ -112,9 +119,10 @@ public class Main {
 			if (user.equals(usuarioAdmin) && contrassenya.equals(contrassenyaAdmin)) {
 				ret.setNombre(usuarioAdmin);
 				ret.setPerfil(Perfiles.ADMIN);
-				System.out.println("\n\t<<<\t¡Bienvenido! Se ha autenticado usted como administrador.\t>>>\n");
+				System.out.println("\n--- ¡Bienvenido! Se ha autenticado usted como administrador. ---\n");
 				
 				valido = true;
+				break;  // Salimos del bucle si las credenciales son correctas
 			}
 			
 			// Comprobamos el archivo de credenciales
@@ -125,20 +133,32 @@ public class Main {
 			
 			try {
 				lector = new FileReader(fichero);
-				br = new BufferedReader(br);
+				br = new BufferedReader(lector);
 				String linea;
 				
 				while ((linea = br.readLine()) != null) {
 					String[] campos = linea.split("\\|");
 					if (campos.length < 7) {
-						continue;
+						continue;//Saltamos las líneas si contienen menos campos de los que deberían
 					}
+				
+					String nombreUsuario = campos[1]; // Índice 1: nombre_usuario
+	                String password = campos[2];     // Índice 2: password
+	                String perfilLogin = campos[6].toUpperCase();
+	                
 					// El fichero credenciales.txt sigue esta plantilla para cada línea:
 				    //  idpersonal|nombre_usuario|password|email|nombre_persona
-					
+					if(user.equals(nombreUsuario) && user.equals(password)) {
+						ret.setNombre(nombreUsuario);
+						ret.setPerfil(Perfiles.valueOf(perfilLogin));
+						System.out.println("\n--- ¡Bienvenido! Se ha autenticado usted como" +perfilLogin+ ". ---\n");
+						valido = true;
+						break;
+					}
 				}
 			} catch (Exception e) {
-				// TODO: handle exception
+				 System.err.println("Error al leer el archivo de credenciales: " + e.getMessage());
+		            e.printStackTrace();
 			}
 			
 			
@@ -154,10 +174,10 @@ public class Main {
 		do {
 			switch (actual.getPerfil()) {
 			case INVITADO:{
-				System.out.println("\n\tIntroduzca el número de la opción deseada:");
-				System.out.println("\t\t\t1.- Ver espectáculos");
-				System.out.println("\t\t\t2.- Iniciar sesión.");
-				System.out.println("\t\t\t0.- Salir");
+				System.out.println("\nIntroduzca el número de la opción deseada:");
+				System.out.println("\t1.- Ver espectáculos");
+				System.out.println("\t2.- Iniciar sesión.");
+				System.out.println("\t0.- Salir");
 				seleccion = Utilidades.leerEntero();
 				if (seleccion < 0 || seleccion > 2) {
 					System.out.println("Opción no disponible. Por favor seleccione una opción.");
@@ -166,10 +186,10 @@ public class Main {
 			}
 				break;
 			case ARTISTA: {
-				System.out.println("\n<<<  Menú de Artista en construcción  >>>\nIntroduzca el número de la opción deseada:");
-				System.out.println("\t\t\t1.- Gestionar personas y credenciales.");
-				System.out.println("\t\t\t2.- Gestionar espectáculos.");
-				System.out.println("\t\t\t0.- Salir");
+				System.out.println("\n=== Menú de Artista en construcción ===\nIntroduzca el número de la opción deseada:");
+				System.out.println("\t1.- Gestionar personas y credenciales.");
+				System.out.println("\t2.- Gestionar espectáculos.");
+				System.out.println("\t0.- Salir");
 			}
 				break;
 			case COORDINADOR: {
@@ -177,7 +197,15 @@ public class Main {
 			}
 				break;
 			case ADMIN: {
-				System.out.println("\n<<< Menú de Admin en construcción >>>\nIntroduzca el número de la opción deseada:");
+				System.out.println("\n=== Bienvenido al menú de administración ===\n-------------------------------------\"\nIntroduzca el número de la opción deseada:");
+				System.out.println("\t1.- Gestión de personas y credenciales.");
+				System.out.println("\t2.- Gestión de espectáculos.");
+				System.out.println("\t0.- Salir.");
+				int opcion = Utilidades.leerEntero();
+				if (opcion < 0 || opcion > 2) {
+					System.out.println("Opción no disponible. Por favor seleccione una opción.");
+					opcion = -1;
+				}
 				
 			}
 				break;
