@@ -65,7 +65,7 @@ public class Main {
 		} while (!confirmarsalir);
 
 	}
-	
+
 	private static Sesion submenuSesion(Sesion actual, int opcion) {
 		Sesion ret = null;
 		switch (actual.getPerfil()) {
@@ -82,14 +82,24 @@ public class Main {
 				break;
 			}
 			break;
+		case ADMIN:
+			switch (opcion) {
+			case 1:
+				System.out.println("\n--- Entrando en el menú de gestión de personas y credenciales...\n");
+				menuPersonas();
+				ret = actual;
+				break;
 
+			default:
+				break;
+			}
 		default:
 			break;
 		}
-		
+
 		return ret;
 	}
-	
+
 	/**
 	 * Método de login con la entrada de datos del usuario y la comprobación de sus datos
 	 * 
@@ -104,6 +114,7 @@ public class Main {
 			String user = Utilidades.leerString();
 			System.out.print("Por favor, introduce tu contraseña:");
 			String contrassenya = Utilidades.leerString();
+			System.out.println("contraseña introducida:"+contrassenya);
 			Properties propiedades = new Properties();
 			try (FileInputStream entrada = new FileInputStream("src/main/resources/application.properties")){
 				propiedades.load(entrada);
@@ -111,63 +122,71 @@ public class Main {
 				System.err.println("Error de Excepción de tipo IOException al cargar el fichero ");
 				e.printStackTrace();
 			}
-			
+
 			// Comprobamos los datos del admin primero
 			String usuarioAdmin = propiedades.getProperty("usuarioAdmin");
 			String contrassenyaAdmin = propiedades.getProperty("passwordAdmin");
-			
+
+
 			if (user.equals(usuarioAdmin) && contrassenya.equals(contrassenyaAdmin)) {
 				ret.setNombre(usuarioAdmin);
 				ret.setPerfil(Perfiles.ADMIN);
 				System.out.println("\n--- ¡Bienvenido! Se ha autenticado usted como administrador. ---\n");
-				
+
 				valido = true;
 				break;  // Salimos del bucle si las credenciales son correctas
 			}
-			
+
 			// Comprobamos el archivo de credenciales
 			String ruta = propiedades.getProperty("ficherocredenciales");
 			FileReader lector = null;
 			File fichero = new File(ruta);
 			BufferedReader br = null;
-			
+
 			try {
 				lector = new FileReader(fichero);
 				br = new BufferedReader(lector);
 				String linea;
-				
+
 				while ((linea = br.readLine()) != null) {
 					String[] campos = linea.split("\\|");
 					if (campos.length < 7) {
 						continue;//Saltamos las líneas si contienen menos campos de los que deberían
 					}
-				
+
 					String nombreUsuario = campos[1]; // Índice 1: nombre_usuario
-	                String password = campos[2];     // Índice 2: password
-	                String perfilLogin = campos[6].toUpperCase();
-	                
+					String password = campos[2];     // Índice 2: password
+					String perfilLogin = campos[6].toUpperCase();
+
 					// El fichero credenciales.txt sigue esta plantilla para cada línea:
-				    //  idpersonal|nombre_usuario|password|email|nombre_persona
-					if(user.equals(nombreUsuario) && user.equals(password)) {
+					//  idpersonal|nombre_usuario|password|email|nombre_persona
+					if(user.equals(nombreUsuario) && contrassenya.equals(password)) {
 						ret.setNombre(nombreUsuario);
 						ret.setPerfil(Perfiles.valueOf(perfilLogin));
 						System.out.println("\n--- ¡Bienvenido! Se ha autenticado usted como" +perfilLogin+ ". ---\n");
 						valido = true;
 						break;
 					}
+
 				}
 			} catch (Exception e) {
-				 System.err.println("Error al leer el archivo de credenciales: " + e.getMessage());
-		            e.printStackTrace();
+				System.err.println("Error al leer el archivo de credenciales: " + e.getMessage());
+				e.printStackTrace();
 			}
-			
-			
+			System.out.println("Los datos introducidos no pertenecen a ningún usuario, inténtelo de nuevo.");
+
 		} while (!valido);
 
 		return ret;
-		
+
 	}
-	
+
+	/**
+	 * Método para gestionar los menús principales de cada tipo de usuario
+	 * 
+	 * @param actual
+	 * @return un int que luego se gestiona desde el método submenuSesion de entrada para entrar en los submenús
+	 */
 	private static int seleccionarOpcion(Sesion actual) {
 		// TODO Auto-generated method stub
 		int seleccion=-1;
@@ -184,20 +203,20 @@ public class Main {
 					seleccion = -1;
 				}
 			}
-				break;
+			break;
 			case ARTISTA: {
-				System.out.println("\n=== Menú de Artista en construcción ===\nIntroduzca el número de la opción deseada:");
+				System.out.println("\n=== Menú de Artista en construcción ===\n-------------------------------------\nIntroduzca el número de la opción deseada:");
 				System.out.println("\t1.- Gestionar personas y credenciales.");
 				System.out.println("\t2.- Gestionar espectáculos.");
 				System.out.println("\t0.- Salir");
 			}
-				break;
+			break;
 			case COORDINADOR: {
-				System.out.println("\n<<< Menú de Coordinador en construcción >>>\nIntroduzca el número de la opción deseada:");
+				System.out.println("\n=== Menú de Coordinador en construcción ===\n-------------------------------------\ndIntroduzca el número de la opción deseada:");
 			}
-				break;
+			break;
 			case ADMIN: {
-				System.out.println("\n=== Bienvenido al menú de administración ===\n-------------------------------------\"\nIntroduzca el número de la opción deseada:");
+				System.out.println("\n=== Menú de administración ===\n------------------------------\"\nIntroduzca el número de la opción deseada:");
 				System.out.println("\t1.- Gestión de personas y credenciales.");
 				System.out.println("\t2.- Gestión de espectáculos.");
 				System.out.println("\t0.- Salir.");
@@ -206,22 +225,119 @@ public class Main {
 					System.out.println("Opción no disponible. Por favor seleccione una opción.");
 					opcion = -1;
 				}
-				
+				seleccion = opcion;
 			}
-				break;
+			break;
 			default:
 				break;
 			}
 		} while (seleccion == -1);
 
 
-			
+
 		return seleccion;
 	}
 
 
+	/**
+	 * Menú de gestión de personas que vuelve a la 
+	 */
+	public static void menuPersonas() {
+		boolean valido = false;
+		do {
+			System.out.println("\n-----------------------------------------------------------\n=== Bienvenido a la gestión de personas y credenciales. ===\n-----------------------------------------------------------\"\nIntroduzca el número de la opción deseada:");
+			System.out.println("\t1.- Registrar persona");
+			System.out.println("\t2.- Asignar perfil y credenciales");
+			System.out.println("\t0.- Salir.");
+			int opcion = Utilidades.leerEntero();
+			if (opcion <0 || opcion >2) {
+				System.err.println("\nOpción no disponible o no válida, introduzca de nuevo su opción.\n");
+				valido = false;
+				break;
+			}
+			switch (opcion) {
+			case 0:
+				System.out.println("\n--- Volviendo al menú de administración.");
+				valido=true;
+				break;
+			case 1:
+				registrarPersona();
+				break;
 
-	
+
+			}
+		} while (!valido);
+	}
+
+	public static void registrarPersona() {
+		System.out.println("-------------------------\n=== Registrar Persona===\n-------------------------");
+		boolean valido = false;
+		do {
+			System.out.print("Introduce el nombre de usuario del nuevo registro:");
+			String user = Utilidades.leerString();
+			System.out.print("Introduce la contraseña del nuevo usuario:");
+			String contrassenya = Utilidades.leerString();
+			System.out.print("Introduce el correo eléctronico del usuario:");
+			String correo = Utilidades.leerString();
+			valido = comprobarRegistroExistente(valido, user, correo);
+			System.out.print("Introduce el nombre completo del usuario:");
+			String nombre = Utilidades.leerString();
+			System.out.print("Seleccione su nacionalidad introduciendo el código de país (por ejemplo ES para España):");
+			
+
+		} while (!valido);
+	}
+
+	private static boolean comprobarRegistroExistente(boolean valido,
+			String user, String correo) {
+		Properties propiedades = new Properties();
+		try (FileInputStream entrada = new FileInputStream("src/main/resources/application.properties")){
+			propiedades.load(entrada);
+		} catch (IOException e) {
+			System.err.println("Error de Excepción de tipo IOException al cargar el fichero ");
+			e.printStackTrace();
+		}
+		// Comprobamos el archivo de credenciales
+		String ruta = propiedades.getProperty("ficherocredenciales");
+		FileReader lector = null;
+		File fichero = new File(ruta);
+		BufferedReader br = null;
+		try {
+			lector = new FileReader(fichero);
+			br = new BufferedReader(lector);
+			String linea;
+
+			while ((linea = br.readLine()) != null) {
+				String[] campos = linea.split("\\|");
+				if (campos.length < 7) {
+					continue;//Saltamos las líneas si contienen menos campos de los que deberían
+				}
+
+				String nombreUsuario = campos[1]; // Índice 1: nombre_usuario
+				String correoUsuario = campos[3];     // Índice : Correo electrónico
+
+				if(user.equals(nombreUsuario) || correo.equals(correoUsuario)) {
+					System.err.println("Correo electrónico y/o usuario ya registrado. Por favor, introduzca un usuario nuevo.");
+					valido = false;
+					break;
+				}
+
+			}
+		} catch (Exception e) {
+			System.err.println("Error al leer el archivo de credenciales: " + e.getMessage());
+			e.printStackTrace();
+		}
+		return valido;
+	}
+
+
+
+	/**
+	 * Método para confirmar acciones que requieran de una revisión del usuario
+	 * 
+	 * @return el booleano esvalido para confirmar o negar la elección.
+	 */
+
 	public boolean esValido() {
 		while (true) {
 			System.out.println("¿Quiere confirmar?");
@@ -236,4 +352,6 @@ public class Main {
 			}
 		}
 	}
+
+
 }

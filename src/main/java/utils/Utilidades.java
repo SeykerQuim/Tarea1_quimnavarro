@@ -104,7 +104,8 @@ public class Utilidades {
 			try {
 				ret = in.nextLine();
 			} catch (Exception e) {
-				// TODO: handle exception
+				System.err.println("Error en la introducción de los datos de tipo:\n");
+				e.getStackTrace();
 			}
 		} while (ret == null && ret.isEmpty());
 	
