@@ -10,10 +10,12 @@ package utils;
 import java.time.LocalDate;
 import java.util.InputMismatchException;
 import java.util.Scanner;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 public class Utilidades {
-	
-	
+
+
 	public static boolean leerBoolean() {
 		boolean ret;
 		Scanner in;
@@ -34,7 +36,7 @@ public class Utilidades {
 		}
 		return ret;
 	}
-	
+
 	public static int leerEntero() {
 		int ret = -1;
 		do {
@@ -47,7 +49,7 @@ public class Utilidades {
 		} while (ret == -1);
 		return ret;
 	}
-	
+
 	public static double leerDouble() {
 		double ret = 0.0;
 		boolean correcto = false;
@@ -65,7 +67,7 @@ public class Utilidades {
 		} while (!correcto);
 		return ret;
 	}
-	
+
 	public static java.time.LocalDate leerFecha() {
 		LocalDate ret = null;
 		int dia=-1, mes=-1, any=-1;
@@ -95,11 +97,11 @@ public class Utilidades {
 		} while (!correcto);
 		return ret;
 	}
-	
+
 	public static String leerString() {
 		String ret = null;
 		Scanner in = new Scanner(System.in, "ISO-8859-1");
-		
+
 		do {
 			try {
 				ret = in.nextLine();
@@ -108,8 +110,36 @@ public class Utilidades {
 				e.getStackTrace();
 			}
 		} while (ret == null && ret.isEmpty());
-	
+
+
+		return ret;
+	}
+
+	public static String leerStringFormato() {
+		String ret = null;
+		Boolean valido = false;
+		Scanner in = new Scanner(System.in, "ISO-8859-1");
+
+		do {
+			try {
+				ret = in.nextLine();
+				// Expresión regular para validar:
+				// ^[a-z\\s]+$: Solo letras minúsculas y espacios
+				Pattern pattern = Pattern.compile("^[a-z\\sñ]+$");
+				Matcher matcher = pattern.matcher(ret);
+
+				if(matcher.matches()) {
+					valido = true;
+				} else {
+					System.err.println("Error: Solo se permiten letras minúsculas y sin caracteres especiales o tildes.");
+				}
 				
+			} catch (Exception e) {
+				System.err.println("Error en la introducción de los datos.");
+				e.getStackTrace();
+			}
+		} while (ret == null && ret.isEmpty() && !valido);
+
 		return ret;
 	}
 

@@ -7,11 +7,25 @@ import java.io.FileInputStream;
 import java.io.FileReader;
 import java.io.IOException;
 import java.security.PrivateKey;
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Properties;
 import java.util.Scanner;
 
 import javax.security.auth.login.LoginContext;
+import javax.xml.parsers.DocumentBuilder;
+import javax.xml.parsers.DocumentBuilderFactory;
+import javax.xml.parsers.ParserConfigurationException;
+
+import org.w3c.dom.Document;
+import org.w3c.dom.Element;
+import org.w3c.dom.Node;
+import org.w3c.dom.NodeList;
+import org.xml.sax.SAXException;
 
 import com.quimnv.modelo.Perfiles;
 import com.quimnv.modelo.Sesion;
@@ -270,22 +284,92 @@ public class Main {
 	}
 
 	public static void registrarPersona() {
+		
 		System.out.println("-------------------------\n=== Registrar Persona===\n-------------------------");
 		boolean valido = false;
 		do {
-			System.out.print("Introduce el nombre de usuario del nuevo registro:");
-			String user = Utilidades.leerString();
+			System.out.print("----------------------\n--- Datos de Persona---\n----------------------\nIntroduce el nombre completo:");
+			String nombre = Utilidades.leerString();
+			System.out.print("Seleccione su nacionalidad introduciendo el ID de país (por ejemplo ES para España):");
+
+			// Cargamos desde propiedades el archivo
+			Properties propiedades = new Properties();
+			try (FileInputStream entrada = new FileInputStream("src/main/resources/application.properties")){
+				propiedades.load(entrada);
+			} catch (IOException e) {
+				System.err.println("Error de Excepción de tipo IOException al cargar el fichero ");
+				e.printStackTrace();
+			}
+			String ficheropaises = propiedades.getProperty("ficherosnacionalidades");
+			File paisesArchivo = new File(ficheropaises);
+			Map<String, String> paises = new HashMap<String, String>();
+
+			try {
+				//Creo una factoria que permita usar un parser:
+				DocumentBuilder builder = DocumentBuilderFactory.newInstance().newDocumentBuilder();
+				//Crea un builder que permite crear documentos DOM usando un parser:
+				Document documento = builder.parse(paisesArchivo);
+				//Los nodos de texto adyacentes los fusiona
+				documento.getDocumentElement().normalize();
+				System.out.println("Elemento raiz:"
+						+documento.getDocumentElement().getNodeName());
+				//Crea una lista con todos los nodos cliente:
+				NodeList paisesList = documento.getElementsByTagName("pais");
+				//Recorro la lista:
+				for (int i = 0; i < paisesList.getLength(); i++) {
+					Node paisNodo = paisesList.item(i);
+					if(paisNodo.getNodeType() == Node.ELEMENT_NODE){
+						Element elemento = (Element) paisNodo;//Obtenemos los elementos del nodo
+						if(paisNodo.getNodeType() == Node.ELEMENT_NODE){
+							String paisString = getNodo("id", elemento)+" "+getNodo("nombre", elemento);
+							paises.put(getNodo("id", elemento), getNodo("nombre", elemento));
+							System.out.println(paisString);
+						}
+					}
+				}
+			} catch (ParserConfigurationException | SAXException | IOException ex) {
+				System.err.println("Error: "+ex.getMessage());
+			}
+			boolean nacionalidadvalida = false;
+			do {
+				System.out.print("Código: ");
+				String id = Utilidades.leerString();;
+				String nacionalidad = "";
+				for (Entry<String, String> entry : paises.entrySet()) {
+					if (id.equalsIgnoreCase(entry.getKey())) {
+						nacionalidad = entry.getValue();
+						System.out.println("Nacionalidad establecida como "+entry.getValue());
+						nacionalidadvalida = true;
+					}
+				}
+				if(!nacionalidadvalida) {
+					System.err.println("Por favor, introduzca un código válido para nacionalidad. Inténtelo de nuevo.");
+				}
+			} while (!nacionalidadvalida);
+
+			System.out.println();
+			
+			// Sección de coordinación o artista
+			
+
+
+
+			System.out.println("Introduce el nombre de usuario del nuevo registro\n(solo se aceptan minúsculas, sin tildes ni carácteres especiales):");
+			String user = Utilidades.leerStringFormato();
 			System.out.print("Introduce la contraseña del nuevo usuario:");
 			String contrassenya = Utilidades.leerString();
 			System.out.print("Introduce el correo eléctronico del usuario:");
 			String correo = Utilidades.leerString();
 			valido = comprobarRegistroExistente(valido, user, correo);
-			System.out.print("Introduce el nombre completo del usuario:");
-			String nombre = Utilidades.leerString();
-			System.out.print("Seleccione su nacionalidad introduciendo el código de país (por ejemplo ES para España):");
-			
+
 
 		} while (!valido);
+	}
+
+	private static String getNodo(String etiqueta, Element elem){
+		NodeList nodo=elem.getElementsByTagName(etiqueta).item(0).getChildNodes();
+		Node valorNodo = (Node) nodo.item(0);
+		return valorNodo.getNodeValue();
 	}
 
 	private static boolean comprobarRegistroExistente(boolean valido,
