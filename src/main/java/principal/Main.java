@@ -114,11 +114,15 @@ public class Main {
 		case ADMIN:
 			switch (opcion) {
 			case 1:
-				System.out.println("\n--- Entrando en el menú de gestión de personas y credenciales...\n");
-				menuPersonas();
-				ret = actual;
+					System.out.println("\n--- Entrando en el menú de gestión de personas y credenciales...\n");
+					menuPersonas();
+					ret = actual;
 				break;
-
+			case 2:
+					System.out.println("\n--- Entrando en el menú de gestión de espectáculos...\n");
+					menuEspectaculos();
+					ret = actual;
+				break;
 			default:
 				break;
 			}
@@ -222,41 +226,49 @@ public class Main {
 		do {
 			switch (actual.getPerfil()) {
 			case INVITADO:{
-				System.out.println("\nIntroduzca el número de la opción deseada:");
-				System.out.println("\t1.- Ver espectáculos");
-				System.out.println("\t2.- Iniciar sesión.");
-				System.out.println("\t0.- Salir");
-				seleccion = Utilidades.leerEntero();
-				if (seleccion < 0 || seleccion > 2) {
-					System.out.println("Opción no disponible. Por favor seleccione una opción.");
-					seleccion = -1;
-				}
-			}
-			break;
+							System.out.println("\nIntroduzca el número de la opción deseada:");
+							System.out.println("\t1.- Ver espectáculos");
+							System.out.println("\t2.- Iniciar sesión.");
+							System.out.println("\t0.- Salir");
+							seleccion = Utilidades.leerEntero();
+							if (seleccion < 0 || seleccion > 2) {
+								System.out.println("Opción no disponible. Por favor seleccione una opción.");
+								seleccion = -1;
+							}
+						}
+				break;
 			case ARTISTA: {
-				System.out.println("\n=== Menú de Artista en construcción ===\n-------------------------------------\nIntroduzca el número de la opción deseada:");
-				System.out.println("\t1.- Gestionar personas y credenciales.");
-				System.out.println("\t2.- Gestionar espectáculos.");
-				System.out.println("\t0.- Salir");
-			}
-			break;
+							System.out.println("\n=== Menú de Artista en construcción ===\n-------------------------------------\nIntroduzca el número de la opción deseada:");
+							System.out.println("\t1.- Ver su ficha de artista.");
+							System.out.println("\t2.- Ver espectáculos.");
+							System.out.println("\t0.- Salir");
+							seleccion = Utilidades.leerEntero();
+							if (seleccion < 0 || seleccion > 2) {
+								System.out.println("Opción no disponible. Por favor seleccione una opción correcta.");
+								seleccion = -1;
+							}
+						}
+				break;
 			case COORDINADOR: {
-				System.out.println("\n=== Menú de Coordinador en construcción ===\n-------------------------------------\ndIntroduzca el número de la opción deseada:");
-			}
-			break;
+								System.out.println("\n=== Menú de Coordinador en construcción ===\n-------------------------------------\ndIntroduzca el número de la opción deseada:");
+								System.out.println("\t1.- Gestionar personas y credenciales.");
+								System.out.println("\t2.- Gestionar espectáculos.");
+								System.out.println("\t0.- Salir");
+							}
+				break;
 			case ADMIN: {
-				System.out.println("\n=== Menú de administración ===\n------------------------------\"\nIntroduzca el número de la opción deseada:");
-				System.out.println("\t1.- Gestión de personas y credenciales.");
-				System.out.println("\t2.- Gestión de espectáculos.");
-				System.out.println("\t0.- Salir.");
-				int opcion = Utilidades.leerEntero();
-				if (opcion < 0 || opcion > 2) {
-					System.out.println("Opción no disponible. Por favor seleccione una opción.");
-					opcion = -1;
-				}
-				seleccion = opcion;
-			}
-			break;
+							System.out.println("\n=== Menú de administración ===\n------------------------------\"\nIntroduzca el número de la opción deseada:");
+							System.out.println("\t1.- Gestión de personas y credenciales.");
+							System.out.println("\t2.- Gestión de espectáculos.");
+							System.out.println("\t0.- Salir.");
+							int opcion = Utilidades.leerEntero();
+							if (opcion < 0 || opcion > 2) {
+								System.out.println("Opción no disponible. Por favor seleccione una opción.");
+								opcion = -1;
+							}
+							seleccion = opcion;
+						}
+				break;
 			default:
 				break;
 			}
@@ -286,16 +298,26 @@ public class Main {
 			}
 			switch (opcion) {
 			case 0:
-				System.out.println("\n--- Volviendo al menú de administración.");
-				valido=true;
+					System.out.println("\n--- Volviendo al menú de administración.");
+					valido=true;
 				break;
 			case 1:
-				Persona registrado = registrarPersona();
+					Persona registrado = registrarPersona();
 				break;
-
-
+			case 2: 
+					System.out.println("Opción no implementada, disculpe las molestias.");
+				break;
+			case 0: 
 			}
 		} while (!valido);
+	}
+	
+	public static void menuEspectaculos() {
+		boolean valido = false;
+		do {
+			
+		} while (!valido);
+		
 	}
 
 	public static Persona registrarPersona() {
