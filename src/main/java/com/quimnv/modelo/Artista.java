@@ -20,8 +20,15 @@ public class Artista extends Persona {
 		this.idArt = idArt;
 		this.apodo = apodo;
 		this.especialidades = especialidades;
-		this.numeros = numeros;
+		this.numeros = null;
 	}
+	
+	public Artista(Long id, String email, String nombre, String nacionalidad, Long idArt, String apodo, Set<Especialidad> especialidades) {
+        super(id, email, nombre, nacionalidad);
+        this.idArt = id;
+        this.apodo = apodo;
+        this.especialidades = especialidades;
+    }
 
 
 

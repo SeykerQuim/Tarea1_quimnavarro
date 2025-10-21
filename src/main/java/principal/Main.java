@@ -1,20 +1,25 @@
 package principal;
 
 import java.awt.Menu;
+import java.awt.event.KeyAdapter;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileReader;
+import java.io.FileWriter;
 import java.io.IOException;
 import java.security.PrivateKey;
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Properties;
 import java.util.Scanner;
+import java.util.Set;
 
 import javax.security.auth.login.LoginContext;
 import javax.xml.parsers.DocumentBuilder;
@@ -27,7 +32,12 @@ import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 import org.xml.sax.SAXException;
 
+import com.quimnv.modelo.Artista;
+import com.quimnv.modelo.Coordinador;
+import com.quimnv.modelo.Especialidad;
+import com.quimnv.modelo.Numero;
 import com.quimnv.modelo.Perfiles;
+import com.quimnv.modelo.Persona;
 import com.quimnv.modelo.Sesion;
 
 import utils.Utilidades;
@@ -275,7 +285,7 @@ public class Main {
 				valido=true;
 				break;
 			case 1:
-				registrarPersona();
+				Persona registrado = registrarPersona();
 				break;
 
 
@@ -283,8 +293,13 @@ public class Main {
 		} while (!valido);
 	}
 
-	public static void registrarPersona() {
-		
+	public static Persona registrarPersona() {
+		String apodoReg = "";
+		Set<Especialidad> especialidadesReg = new HashSet<>();
+		Boolean seniorReg = false;
+		LocalDate fechaSeniorReg = null;
+		Persona ret = new Persona();
+
 		System.out.println("-------------------------\n=== Registrar Persona===\n-------------------------");
 		boolean valido = false;
 		do {
@@ -300,58 +315,89 @@ public class Main {
 				System.err.println("Error de Excepción de tipo IOException al cargar el fichero ");
 				e.printStackTrace();
 			}
-			String ficheropaises = propiedades.getProperty("ficherosnacionalidades");
-			File paisesArchivo = new File(ficheropaises);
-			Map<String, String> paises = new HashMap<String, String>();
 
-			try {
-				//Creo una factoria que permita usar un parser:
-				DocumentBuilder builder = DocumentBuilderFactory.newInstance().newDocumentBuilder();
-				//Crea un builder que permite crear documentos DOM usando un parser:
-				Document documento = builder.parse(paisesArchivo);
-				//Los nodos de texto adyacentes los fusiona
-				documento.getDocumentElement().normalize();
-				System.out.println("Elemento raiz:"
-						+documento.getDocumentElement().getNodeName());
-				//Crea una lista con todos los nodos cliente:
-				NodeList paisesList = documento.getElementsByTagName("pais");
-				//Recorro la lista:
-				for (int i = 0; i < paisesList.getLength(); i++) {
-					Node paisNodo = paisesList.item(i);
-					if(paisNodo.getNodeType() == Node.ELEMENT_NODE){
-						Element elemento = (Element) paisNodo;//Obtenemos los elementos del nodo
-						if(paisNodo.getNodeType() == Node.ELEMENT_NODE){
-							String paisString = getNodo("id", elemento)+" "+getNodo("nombre", elemento);
-							paises.put(getNodo("id", elemento), getNodo("nombre", elemento));
-							System.out.println(paisString);
-						}
-					}
-				}
-			} catch (ParserConfigurationException | SAXException | IOException ex) {
-				System.err.println("Error: "+ex.getMessage());
-			}
-			boolean nacionalidadvalida = false;
-			do {
-				System.out.print("Código: ");
-				String id = Utilidades.leerString();;
-				String nacionalidad = "";
-				for (Entry<String, String> entry : paises.entrySet()) {
-					if (id.equalsIgnoreCase(entry.getKey())) {
-						nacionalidad = entry.getValue();
-						System.out.println("Nacionalidad establecida como "+entry.getValue());
-						nacionalidadvalida = true;
-					}
-				}
-				if(!nacionalidadvalida) {
-					System.err.println("Por favor, introduzca un código válido para nacionalidad. Inténtelo de nuevo.");
-				}
-			} while (!nacionalidadvalida);
+			String nacionalidad=seleccionarPais(propiedades);
 
-			System.out.println();
-			
+
+
 			// Sección de coordinación o artista
-			
+			System.out.println("Seleccione el tipo de persona:\n\t1.- Artista\n\t2. Coordinador");
 
+			Perfiles perfilReg = null;
+			do {
+				int perfilOpcion = Utilidades.leerEntero();
+				if (perfilOpcion < 0 || perfilOpcion > 2) {
+					System.out.println("Opción no disponible, por favor introduzca una opción válida.");
+				}
+				switch (perfilOpcion) {
+				case 1: 
+					System.out.println("Ha seleccionado artista.");
+					System.out.println("¿Tiene apodo? Introduzcalo a continuación o presione enter.");
+					apodoReg = Utilidades.leerString();
+					System.out.println("¿Cuales son sus especialidades?\nIntroduzca los números y presione 0 para salir.");
+					especialidadesReg = new HashSet<>();
+					Boolean especialidadesValido = false;
+					do {
+						System.out.println("1.- Acrobacia\n2.- Humor\n3.- Magia\n4.- Equilibrismo\n5.- Malabarismo\n0.- Terminar");
+						int seleccion = Utilidades.leerEntero();
+						switch (seleccion) {
+						case 1: if (especialidadesReg.contains(Especialidad.ACROBACIA)) {
+							System.out.println("Ya había introducido acrobacia.");
+						} else {
+							especialidadesReg.add(Especialidad.ACROBACIA);
+						}
+						break;
+						case 2: if (especialidadesReg.contains(Especialidad.HUMOR)) {
+							System.out.println("Ya había introducido humor.");
+						} else {
+							especialidadesReg.add(Especialidad.HUMOR);
+						}
+						break;
+						case 3: if (especialidadesReg.contains(Especialidad.MAGIA)) {
+							System.out.println("Ya había introducido magia.");
+						} else {
+							especialidadesReg.add(Especialidad.MAGIA);
+						}
+						break;
+						case 4: if (especialidadesReg.contains(Especialidad.EQUILIBRISMO)) {
+							System.out.println("Ya había introducido equilibrismo.");
+						} else {
+							especialidadesReg.add(Especialidad.EQUILIBRISMO);
+						}
+						break;
+						case 5: if (especialidadesReg.contains(Especialidad.MALABARISMO)) {
+							System.out.println("Ya había introducido malabarismo.");
+						} else {
+							especialidadesReg.add(Especialidad.MALABARISMO);
+						}
+						break;
+						case 0: if (especialidadesReg.isEmpty()) {
+							System.out.println("Por favor, introduzca al menos una especialidad.");
+						} else {
+							System.out.println("Ha introducido las siguientes especialidades:");
+							for (Especialidad especialidad : especialidadesReg) {
+								System.out.println(especialidad.toString().toLowerCase());
+							}
+							especialidadesValido = true;
+						}
+						break;
+						default: System.out.println("Por favor, introduzca una opción válida.");
+						break;
+						}
+					} while (!especialidadesValido);
+					perfilReg=Perfiles.ARTISTA;
+					break;
+				case 2: 
+					System.out.println("Ha seleccionado coordinador.");
+					System.out.print("¿Es un coordinador senior?");
+					seniorReg = Utilidades.leerBoolean();
+					if (seniorReg) {
+						System.out.println("¿Desde qué fecha es senior?");
+						fechaSeniorReg = Utilidades.leerFecha();
+					}
+					perfilReg=Perfiles.COORDINADOR;
+				}
+			} while (perfilReg == null);
 
 
 			System.out.println("Introduce el nombre de usuario del nuevo registro\n(solo se aceptan minúsculas, sin tildes ni carácteres especiales):");
@@ -360,10 +406,79 @@ public class Main {
 			String contrassenya = Utilidades.leerString();
 			System.out.print("Introduce el correo eléctronico del usuario:");
 			String correo = Utilidades.leerString();
-			valido = comprobarRegistroExistente(valido, user, correo);
+			Boolean registrovalido = comprobarRegistroExistente(valido, user, correo);
+			
+			if (registrovalido) {
+				System.out.println("¿Quiere confirmar el registro?");
+				boolean confirmarRegistro = esValido();
+				if (confirmarRegistro) {
+					System.out.println("Registrado nuevo usuario");
+					int nuevoId = obtenerUltimoId();
+					escribirEnArchivo(nuevoId, user, contrassenya, correo, nombre, nacionalidad, perfilReg);
+					if (perfilReg.equals(Perfiles.ARTISTA)) {
+						ret = new Artista(Long.valueOf(nuevoId), correo, nombre, nacionalidad, Long.valueOf(nuevoId), apodoReg, especialidadesReg);
+						valido = true;
+					} else if (perfilReg.equals(Perfiles.COORDINADOR)) {
+						ret = new Coordinador(Long.valueOf(nuevoId),correo,nombre,nacionalidad,Long.valueOf(nuevoId),seniorReg, fechaSeniorReg);
+						valido = true;
+					} 
+				}
+				
+			}
+
 
 
 		} while (!valido);
+		return ret;
+	}
+
+	private static String seleccionarPais(Properties propiedades) {
+		String ret="";
+		String ficheropaises = propiedades.getProperty("ficherosnacionalidades");
+		File paisesArchivo = new File(ficheropaises);
+		Map<String, String> paises = new HashMap<String, String>();
+
+		try {
+			//Creo una factoria que permita usar un parser:
+			DocumentBuilder builder = DocumentBuilderFactory.newInstance().newDocumentBuilder();
+			//Crea un builder que permite crear documentos DOM usando un parser:
+			Document documento = builder.parse(paisesArchivo);
+			//Los nodos de texto adyacentes los fusiona
+			documento.getDocumentElement().normalize();
+			System.out.println("Elemento raiz:"
+					+documento.getDocumentElement().getNodeName());
+			//Crea una lista con todos los nodos cliente:
+			NodeList paisesList = documento.getElementsByTagName("pais");
+			//Recorro la lista:
+			for (int i = 0; i < paisesList.getLength(); i++) {
+				Node paisNodo = paisesList.item(i);
+				if(paisNodo.getNodeType() == Node.ELEMENT_NODE){
+					Element elemento = (Element) paisNodo;//Obtenemos los elementos del nodo
+					if(paisNodo.getNodeType() == Node.ELEMENT_NODE){
+						paises.put(getNodo("id", elemento), getNodo("nombre", elemento));
+						System.out.println(getNodo("id", elemento)+" "+getNodo("nombre", elemento));
+					}
+				}
+			}
+		} catch (ParserConfigurationException | SAXException | IOException ex) {
+			System.err.println("Error: "+ex.getMessage());
+		}
+		boolean nacionalidadvalida = false;
+		do {
+			System.out.print("Código: ");
+			String id = Utilidades.leerString();
+			for (Entry<String, String> entry : paises.entrySet()) {
+				if (id.equalsIgnoreCase(entry.getKey())) {
+					ret = entry.getValue();
+					System.out.println("Nacionalidad establecida como "+entry.getValue());
+					nacionalidadvalida = true;
+				}
+			}
+			if(!nacionalidadvalida) {
+				System.err.println("Por favor, introduzca un código válido para nacionalidad. Inténtelo de nuevo.");
+			}
+		} while (!nacionalidadvalida);
+		return ret;
 	}
 
 	private static String getNodo(String etiqueta, Element elem){
@@ -404,6 +519,8 @@ public class Main {
 					System.err.println("Correo electrónico y/o usuario ya registrado. Por favor, introduzca un usuario nuevo.");
 					valido = false;
 					break;
+				} else {
+					valido= true;
 				}
 
 			}
@@ -422,7 +539,7 @@ public class Main {
 	 * @return el booleano esvalido para confirmar o negar la elección.
 	 */
 
-	public boolean esValido() {
+	public static boolean esValido() {
 		while (true) {
 			System.out.println("¿Quiere confirmar?");
 			System.out.println("SI/NO");
@@ -436,6 +553,67 @@ public class Main {
 			}
 		}
 	}
+	private static int obtenerUltimoId() {
+		int ultimoId = 0;
+		Properties propiedades = new Properties();
+		try (FileInputStream entrada = new FileInputStream("src/main/resources/application.properties")) {
+			propiedades.load(entrada);
+		} catch (IOException e) {
+			System.err.println("Error al cargar el archivo de propiedades.");
+			e.printStackTrace();
+		}
 
+		String ruta = propiedades.getProperty("ficherocredenciales");
+		File fichero = new File(ruta);
+
+		try (BufferedReader br = new BufferedReader(new FileReader(fichero))) {
+			String linea;
+			while ((linea = br.readLine()) != null) {
+				String[] campos = linea.split("\\|");
+				if (campos.length >= 1) {
+					int idActual = Integer.parseInt(campos[0]);
+					if (idActual > ultimoId) {
+						ultimoId = idActual;
+					}
+				}
+			}
+		} catch (Exception e) {
+			System.err.println("Error al leer el archivo de credenciales: " + e.getMessage());
+			e.printStackTrace();
+		}
+
+		return ++ultimoId;
+	}
+
+	private static void escribirEnArchivo(int id, String user, String contrassenya, String correo, String nombre, String nacionalidad, Perfiles perfilReg) {
+		Properties propiedades = new Properties();
+		try (FileInputStream entrada = new FileInputStream("src/main/resources/application.properties")) {
+			propiedades.load(entrada);
+		} catch (IOException e) {
+			System.err.println("Error al cargar el archivo de propiedades.");
+			e.printStackTrace();
+		}
+
+		String ruta = propiedades.getProperty("ficherocredenciales");
+
+		try (FileWriter writer = new FileWriter(ruta, true)) {
+
+			String linea = String.format("%n%d|%s|%s|%s|%s|%s|%s",
+					id,
+					user,
+					contrassenya,
+					correo,
+					nombre,
+					nacionalidad,
+					perfilReg.toString().toLowerCase(),""
+					);
+
+			writer.write(linea);
+			System.out.println("Registro guardado correctamente.");
+		} catch (IOException e) {
+			System.err.println("Error al escribir en el archivo de credenciales: " + e.getMessage());
+			e.printStackTrace();
+		}
+	}
 
 }

@@ -18,6 +18,13 @@ public class Coordinador extends Persona {
 		this.senior = senior;
 		this.fechasenior = fechasenior;
 	}
+	
+	public Coordinador(Long id, String email, String nombre, String nacionalidad,Long idCoord, boolean senior, LocalDate fechasenior) {
+		super(id, email, nombre, nacionalidad);
+		this.idCoord = idCoord;
+		this.senior = senior;
+		this.fechasenior = fechasenior;
+	}
 
 
 	public Long getIdCoord() {
