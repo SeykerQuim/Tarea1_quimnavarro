@@ -125,7 +125,7 @@ public class Utilidades {
 				ret = in.nextLine();
 				// Expresión regular para validar:
 				// ^[a-z\\s]+$: Solo letras minúsculas y espacios
-				Pattern pattern = Pattern.compile("^[a-z]{3,}$");
+				Pattern pattern = Pattern.compile("^[a-z]{3,25}$");
 				Matcher matcher = pattern.matcher(ret);
 
 				if(matcher.matches()) {
