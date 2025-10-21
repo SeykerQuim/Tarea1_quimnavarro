@@ -346,48 +346,28 @@ public class Main {
 						System.out.println("1.- Acrobacia\n2.- Humor\n3.- Magia\n4.- Equilibrismo\n5.- Malabarismo\n0.- Terminar");
 						int seleccion = Utilidades.leerEntero();
 						switch (seleccion) {
-						case 1: if (especialidadesReg.contains(Especialidad.ACROBACIA)) {
-							System.out.println("Ya había introducido acrobacia.");
-						} else {
-							especialidadesReg.add(Especialidad.ACROBACIA);
-						}
-						break;
-						case 2: if (especialidadesReg.contains(Especialidad.HUMOR)) {
-							System.out.println("Ya había introducido humor.");
-						} else {
-							especialidadesReg.add(Especialidad.HUMOR);
-						}
-						break;
-						case 3: if (especialidadesReg.contains(Especialidad.MAGIA)) {
-							System.out.println("Ya había introducido magia.");
-						} else {
-							especialidadesReg.add(Especialidad.MAGIA);
-						}
-						break;
-						case 4: if (especialidadesReg.contains(Especialidad.EQUILIBRISMO)) {
-							System.out.println("Ya había introducido equilibrismo.");
-						} else {
-							especialidadesReg.add(Especialidad.EQUILIBRISMO);
-						}
-						break;
-						case 5: if (especialidadesReg.contains(Especialidad.MALABARISMO)) {
-							System.out.println("Ya había introducido malabarismo.");
-						} else {
-							especialidadesReg.add(Especialidad.MALABARISMO);
-						}
-						break;
-						case 0: if (especialidadesReg.isEmpty()) {
-							System.out.println("Por favor, introduzca al menos una especialidad.");
-						} else {
-							System.out.println("Ha introducido las siguientes especialidades:");
-							for (Especialidad especialidad : especialidadesReg) {
-								System.out.println(especialidad.toString().toLowerCase());
-							}
-							especialidadesValido = true;
-						}
-						break;
-						default: System.out.println("Por favor, introduzca una opción válida.");
-						break;
+							case 1: especialidadesReg.add(Especialidad.ACROBACIA);
+								break;
+							case 2: especialidadesReg.add(Especialidad.HUMOR);
+								break;
+							case 3: especialidadesReg.add(Especialidad.MAGIA);
+								break;
+							case 4: especialidadesReg.add(Especialidad.EQUILIBRISMO);
+								break;
+							case 5: especialidadesReg.add(Especialidad.MALABARISMO);
+								break;
+							case 0: if (especialidadesReg.isEmpty()) {
+									System.out.println("Por favor, introduzca al menos una especialidad.");
+								} else {
+									System.out.println("Ha introducido las siguientes especialidades:");
+									for (Especialidad especialidad : especialidadesReg) {
+										System.out.println(especialidad.toString().toLowerCase());
+									}
+									especialidadesValido = true;
+								}
+								break;
+							default: System.out.println("Por favor, introduzca una opción válida.");
+								break;
 						}
 					} while (!especialidadesValido);
 					perfilReg=Perfiles.ARTISTA;
