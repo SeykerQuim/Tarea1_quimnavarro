@@ -26,6 +26,54 @@ public class Espectaculo implements Serializable{
 		this.idCoord = idCoord;
 		this.numeros = numeros;
 	}
+
+	public Long getIdEspectaculo() {
+		return idEspectaculo;
+	}
+
+	public void setIdEspectaculo(Long idEspectaculo) {
+		this.idEspectaculo = idEspectaculo;
+	}
+
+	public String getNombre() {
+		return nombre;
+	}
+
+	public void setNombre(String nombre) {
+		this.nombre = nombre;
+	}
+
+	public LocalDate getFechaini() {
+		return fechaini;
+	}
+
+	public void setFechaini(LocalDate fechaini) {
+		this.fechaini = fechaini;
+	}
+
+	public LocalDate getFechafin() {
+		return fechafin;
+	}
+
+	public void setFechafin(LocalDate fechafin) {
+		this.fechafin = fechafin;
+	}
+
+	public Long getIdCoord() {
+		return idCoord;
+	}
+
+	public void setIdCoord(Long idCoord) {
+		this.idCoord = idCoord;
+	}
+
+	public Set<Numero> getNumeros() {
+		return numeros;
+	}
+
+	public void setNumeros(Set<Numero> numeros) {
+		this.numeros = numeros;
+	}
     
-    
+	
 }

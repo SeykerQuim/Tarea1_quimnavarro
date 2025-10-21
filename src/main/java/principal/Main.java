@@ -3,11 +3,13 @@ package principal;
 import java.awt.Menu;
 import java.awt.event.KeyAdapter;
 import java.io.BufferedReader;
+import java.io.EOFException;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.io.ObjectInputStream;
 import java.security.PrivateKey;
 import java.time.LocalDate;
 import java.util.ArrayList;
@@ -35,6 +37,7 @@ import org.xml.sax.SAXException;
 import com.quimnv.modelo.Artista;
 import com.quimnv.modelo.Coordinador;
 import com.quimnv.modelo.Especialidad;
+import com.quimnv.modelo.Espectaculo;
 import com.quimnv.modelo.Numero;
 import com.quimnv.modelo.Perfiles;
 import com.quimnv.modelo.Persona;
@@ -97,6 +100,8 @@ public class Main {
 			switch (opcion) {
 			case 1:
 				System.out.println("Ver espectáculos del circo:");
+				verEspectaculos();
+				ret = actual;
 				break;
 			case 2:
 				System.out.println("\n--- Entrando en el menú de acceso al usuario\n");
@@ -614,6 +619,49 @@ public class Main {
 			System.err.println("Error al escribir en el archivo de credenciales: " + e.getMessage());
 			e.printStackTrace();
 		}
+	}
+	
+	public static void verEspectaculos() {
+	    List<Espectaculo> espectaculos = new ArrayList<>();
+
+	    String rutaArchivo = "ficheros/espectaculos.dat";
+	    File archivo = new File(rutaArchivo);
+
+	    if (!archivo.exists()) {
+	        System.out.println("El archivo de espectáculos no existe.");
+	        return;
+	    }
+
+	    try (ObjectInputStream ois = new ObjectInputStream(new FileInputStream(archivo))) {
+	        while (true) {
+	            try {
+	                Espectaculo espectaculo = (Espectaculo) ois.readObject();
+	                espectaculos.add(espectaculo);
+	            } catch (EOFException e) {
+	                break; // Fin del archivo
+	            }
+	        }
+	    } catch (IOException | ClassNotFoundException e) {
+	        System.err.println("Error al leer el archivo de espectáculos: " + e.getMessage());
+	        e.printStackTrace();
+	    }
+
+	    if (espectaculos.isEmpty()) {
+	        System.out.println("No hay espectáculos registrados.");
+	    } else {
+	        System.out.println("Lista de espectáculos:");
+	        System.out.println("--------------------------------------------------");
+	        System.out.printf("%-10s %-20s %-15s %-15s%n", "ID", "Nombre", "Fecha Inicio", "Fecha Fin");
+	        System.out.println("--------------------------------------------------");
+
+	        for (Espectaculo espectaculo : espectaculos) {
+	            System.out.printf("%-10d %-20s %-15s %-15s%n",
+	                    espectaculo.getIdEspectaculo(),
+	                    espectaculo.getNombre(),
+	                    espectaculo.getFechaini(),
+	                    espectaculo.getFechafin());
+	        }
+	    }
 	}
 
 }
