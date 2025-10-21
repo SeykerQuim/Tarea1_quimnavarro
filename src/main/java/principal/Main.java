@@ -307,8 +307,7 @@ public class Main {
 			case 2: 
 					System.out.println("Opción no implementada, disculpe las molestias.");
 				break;
-			case 0: 
-			}
+				}
 		} while (!valido);
 	}
 	
