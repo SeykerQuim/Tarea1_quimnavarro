@@ -624,16 +624,17 @@ public class Main {
 	
 	public static void verEspectaculos() {
 	    List<Espectaculo> espectaculos = new ArrayList<>();
+	    
+	    File espectaculosArchivo = obtenerFicheroEspectaculos();
 
-	    String rutaArchivo = "ficheros/espectaculos.dat";
-	    File archivo = new File(rutaArchivo);
 
-	    if (!archivo.exists()) {
+
+	    if (!espectaculosArchivo.exists()) {
 	        System.out.println("El archivo de espectáculos no existe.");
 	        return;
 	    }
 
-	    try (ObjectInputStream ois = new ObjectInputStream(new FileInputStream(archivo))) {
+	    try (ObjectInputStream ois = new ObjectInputStream(new FileInputStream(espectaculosArchivo))) {
 	        while (true) {
 	            try {
 	                Espectaculo espectaculo = (Espectaculo) ois.readObject();
@@ -664,5 +665,159 @@ public class Main {
 	        }
 	    }
 	}
+
+	private static File obtenerFicheroEspectaculos() {
+		Properties propiedades = new Properties();
+		try (FileInputStream entrada = new FileInputStream("src/main/resources/application.properties")){
+			propiedades.load(entrada);
+		} catch (IOException e) {
+			System.err.println("Error de Excepción de tipo IOException al cargar el fichero ");
+			e.printStackTrace();
+		}
+	    
+	    String ficheroEspectaculos = propiedades.getProperty("ficheroespectaculos");
+		File espectaculosArchivo = new File(ficheroEspectaculos);
+		return espectaculosArchivo;
+	}
+	
+	private static long obtenerUltimoIdEspectaculo() {
+	    long ultimoId = 0;
+	    File espectaculosArchivo = obtenerFicheroEspectaculos();
+
+	    if (!espectaculosArchivo.exists()) {
+	        return 1; // Si el archivo no existe, el primer ID será 1
+	    }
+
+	    try (ObjectInputStream ois = new ObjectInputStream(new FileInputStream(espectaculosArchivo))) {
+	        while (true) {
+	            try {
+	                Espectaculo espectaculo = (Espectaculo) ois.readObject();
+	                if (espectaculo.getIdEspectaculo() > ultimoId) {
+	                    ultimoId = espectaculo.getIdEspectaculo();
+	                }
+	            } catch (EOFException e) {
+	                break; // Fin del archivo
+	            }
+	        }
+	    } catch (IOException | ClassNotFoundException e) {
+	        System.err.println("Error al leer el archivo de espectáculos: " + e.getMessage());
+	        e.printStackTrace();
+	    }
+
+	    return ultimoId + 1; // Incrementamos el ID en 1
+	}
+	
+	private static boolean validarNombreEspectaculo(String nombre) {
+	    if (nombre.length() > 25) {
+	        System.err.println("El nombre del espectáculo no puede superar los 25 caracteres.");
+	        return false;
+	    }
+
+	    String rutaArchivo = "src/main/resources/ficheros/espectaculos.dat";
+	    File archivo = new File(rutaArchivo);
+
+	    if (!archivo.exists()) {
+	        return true; // Si el archivo no existe, el nombre es válido
+	    }
+
+	    try (ObjectInputStream ois = new ObjectInputStream(new FileInputStream(archivo))) {
+	        while (true) {
+	            try {
+	                Espectaculo espectaculo = (Espectaculo) ois.readObject();
+	                if (espectaculo.getNombre().equalsIgnoreCase(nombre)) {
+	                    System.err.println("El nombre del espectáculo ya existe.");
+	                    return false;
+	                }
+	            } catch (EOFException e) {
+	                break; // Fin del archivo
+	            }
+	        }
+	    } catch (IOException | ClassNotFoundException e) {
+	        System.err.println("Error al leer el archivo de espectáculos: " + e.getMessage());
+	        e.printStackTrace();
+	    }
+
+	    return true;
+	}
+
+	private static boolean validarFechasEspectaculo(LocalDate fechaIni, LocalDate fechaFin) {
+	    if (fechaIni.isAfter(fechaFin)) {
+	        System.err.println("La fecha de inicio no puede ser posterior a la fecha de fin.");
+	        return false;
+	    }
+
+	    if (fechaFin.isAfter(fechaIni.plusYears(1))) {
+	        System.err.println("El periodo de fechas no puede superar 1 año.");
+	        return false;
+	    }
+
+	    return true;
+	}
+	
+	private static Long seleccionarCoordinador() {
+	    List<Coordinador> coordinadores = new ArrayList<>();
+	    
+	    Properties propiedades = new Properties();
+		try (FileInputStream entrada = new FileInputStream("src/main/resources/application.properties")){
+			propiedades.load(entrada);
+		} catch (IOException e) {
+			System.err.println("Error de Excepción de tipo IOException al cargar el fichero ");
+			e.printStackTrace();
+		}
+		
+		String ruta = propiedades.getProperty("ficherocredenciales");
+		FileReader lector = null;
+		File fichero = new File(ruta);
+		BufferedReader br = null;
+
+		try {
+			lector = new FileReader(fichero);
+			br = new BufferedReader(lector);
+			String linea;
+			int i = 0;
+			while ((linea = br.readLine()) != null) {
+				
+				String[] campos = linea.split("\\|");
+				if (campos.length < 7) {
+					continue;//Saltamos las líneas si contienen menos campos de los que deberían
+				}
+
+				String nombreUsuario = campos[1]; // Índice 1: nombre_usuario
+				String perfilLogin = campos[6].toUpperCase();
+
+				if(perfilLogin.equals("COORDINACION")) {
+					i++;
+					
+					System.out.println(i+".- "+nombreUsuario);
+				}
+
+			}
+		} catch (Exception e) {
+			System.err.println("Error al leer el archivo de credenciales: " + e.getMessage());
+			e.printStackTrace();
+		}
+		
+		
+
+	    // Aquí debes cargar los coordinadores desde tu fuente de datos
+	    // Por ahora, vamos a simularlo con algunos datos de prueba
+	    coordinadores.add(new Coordinador(1L, "coordinador1@example.com", "Coordinador Uno", "Española", 1L, true, LocalDate.now()));
+	    coordinadores.add(new Coordinador(2L, "coordinador2@example.com", "Coordinador Dos", "Española", 2L, false, null));
+
+	    System.out.println("Seleccione un coordinador:");
+	    for (int i = 0; i < coordinadores.size(); i++) {
+	        System.out.println((i + 1) + ". " + coordinadores.get(i).getNombre());
+	    }
+
+	    int opcion = Utilidades.leerEntero();
+	    if (opcion < 1 || opcion > coordinadores.size()) {
+	        System.err.println("Opción no válida.");
+	        return null;
+	    }
+
+	    return coordinadores.get(opcion - 1).getId();
+	}
+
+
 
 }
