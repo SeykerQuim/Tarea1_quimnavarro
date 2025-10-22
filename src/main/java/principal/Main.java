@@ -122,9 +122,20 @@ public class Main {
 				break;
 			case 2:
 					System.out.println("\n--- Entrando en el menú de gestión de espectáculos...\n");
-					menuEspectaculos();
+					menuEspectaculos(actual);
 					ret = actual;
 				break;
+			default:
+				break;
+			}
+		case COORDINADOR:
+			switch (opcion) {
+			case 1:
+					System.out.println("\n--- Entrando en el menú de gestión de espectáculos...\n");
+					menuEspectaculos(actual);
+					ret=actual;
+				break;
+
 			default:
 				break;
 			}
@@ -311,10 +322,35 @@ public class Main {
 		} while (!valido);
 	}
 	
-	public static void menuEspectaculos() {
+	public static void menuEspectaculos(Sesion actual) {
 		boolean valido = false;
 		do {
-			
+			System.out.println("\n-----------------------------------------------------------\n=== Bienvenido a la gestión de espectáculos. ===\n-----------------------------------------------------------\"\nIntroduzca el número de la opción deseada:");
+			System.out.println("\t1.- Crear o modificar espectáculos.");
+			System.out.println("\t2.- Asignar artistas (no disponible).");
+			System.out.println("\t3.- Crear o modificar números (no disponible).");
+			System.out.println("\t0.- Salir.");
+			int opcion = Utilidades.leerEntero();
+			if (opcion <0 || opcion >2) {
+				System.err.println("\nOpción no disponible o no válida, introduzca de nuevo su opción.\n");
+				valido = false;
+				break;
+			}
+			switch (opcion) {
+			case 0:
+					System.out.println("\n--- Volviendo al menú de administración.");
+					valido=true;
+				break;
+			case 1:
+					gestionarEspectaculo(actual);
+				break;
+			case 2: 
+					System.out.println("Opción no implementada, disculpe las molestias.");
+				break;
+			case 3: 
+				System.out.println("Opción no implementada, disculpe las molestias.");
+			break;
+				}
 		} while (!valido);
 		
 	}
