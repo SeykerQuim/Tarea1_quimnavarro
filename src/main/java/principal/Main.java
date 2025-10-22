@@ -6,10 +6,12 @@ import java.io.BufferedReader;
 import java.io.EOFException;
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.FileOutputStream;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
 import java.security.PrivateKey;
 import java.time.LocalDate;
 import java.util.ArrayList;
@@ -268,8 +270,6 @@ public class Main {
 							}
 							seleccion = opcion;
 						}
-				break;
-			default:
 				break;
 			}
 		} while (seleccion == -1);
@@ -780,15 +780,23 @@ public class Main {
 				String[] campos = linea.split("\\|");
 				if (campos.length < 7) {
 					continue;//Saltamos las líneas si contienen menos campos de los que deberían
-				}
-
+				}				
+				Long id = Long.valueOf(campos[0]);
 				String nombreUsuario = campos[1]; // Índice 1: nombre_usuario
+				String email = campos[2];
+				String nombre = campos[3];
+				String nacionalidad = campos[4];
+				Long idCord = id;
+				Boolean senior = false;
+				LocalDate fechasenior = null;
 				String perfilLogin = campos[6].toUpperCase();
+				Coordinador coordinador = new Coordinador(id,nombreUsuario,email,nombre,idCord,senior,fechasenior);
 
 				if(perfilLogin.equals("COORDINACION")) {
 					i++;
 					
-					System.out.println(i+".- "+nombreUsuario);
+					coordinadores.add(coordinador);
+					System.out.println(i+".- "+nombre);
 				}
 
 			}
@@ -797,17 +805,6 @@ public class Main {
 			e.printStackTrace();
 		}
 		
-		
-
-	    // Aquí debes cargar los coordinadores desde tu fuente de datos
-	    // Por ahora, vamos a simularlo con algunos datos de prueba
-	    coordinadores.add(new Coordinador(1L, "coordinador1@example.com", "Coordinador Uno", "Española", 1L, true, LocalDate.now()));
-	    coordinadores.add(new Coordinador(2L, "coordinador2@example.com", "Coordinador Dos", "Española", 2L, false, null));
-
-	    System.out.println("Seleccione un coordinador:");
-	    for (int i = 0; i < coordinadores.size(); i++) {
-	        System.out.println((i + 1) + ". " + coordinadores.get(i).getNombre());
-	    }
 
 	    int opcion = Utilidades.leerEntero();
 	    if (opcion < 1 || opcion > coordinadores.size()) {
@@ -817,7 +814,130 @@ public class Main {
 
 	    return coordinadores.get(opcion - 1).getId();
 	}
+	
+	public static void gestionarEspectaculo(Sesion actual) {
+	    System.out.println("------------------------------\n=== Gestionar Espectáculo ===\n------------------------------");
 
+	    System.out.print("Introduce el nombre del espectáculo (máximo 25 caracteres): ");
+	    String nombre = Utilidades.leerString();
+
+	    if (!validarNombreEspectaculo(nombre)) {
+	        return;
+	    }
+
+	    System.out.print("Introduce la fecha de inicio (YYYY-MM-DD): ");
+	    LocalDate fechaIni = Utilidades.leerFecha();
+
+	    System.out.print("Introduce la fecha de fin (YYYY-MM-DD): ");
+	    LocalDate fechaFin = Utilidades.leerFecha();
+
+	    if (!validarFechasEspectaculo(fechaIni, fechaFin)) {
+	        return;
+	    }
+
+	    Long idCoord;
+	    if (actual.getPerfil() == Perfiles.ADMIN) {
+	        idCoord = seleccionarCoordinador();
+	        if (idCoord == null) {
+	            return;
+	        }
+	    } else {
+	    	
+	        idCoord = idCoordinadorActual(actual); // Asignar el ID del coordinador actual
+	    }
+
+	    long nuevoId = obtenerUltimoIdEspectaculo();
+	    Espectaculo nuevoEspectaculo = new Espectaculo(nuevoId, nombre, fechaIni, fechaFin, idCoord);
+
+	    // Guardar el espectáculo en el archivo
+	    guardarEspectaculo(nuevoEspectaculo);
+
+	    System.out.println("Espectáculo creado con éxito. ID: " + nuevoId);
+	}
+	
+	
+
+	private static Long idCoordinadorActual(Sesion actual) {
+	    Long ret = 0L;
+		
+	    Properties propiedades = new Properties();
+		try (FileInputStream entrada = new FileInputStream("src/main/resources/application.properties")){
+			propiedades.load(entrada);
+		} catch (IOException e) {
+			System.err.println("Error de Excepción de tipo IOException al cargar el fichero ");
+			e.printStackTrace();
+		}
+		
+		String ruta = propiedades.getProperty("ficherocredenciales");
+		FileReader lector = null;
+		File fichero = new File(ruta);
+		BufferedReader br = null;
+
+		try {
+			lector = new FileReader(fichero);
+			br = new BufferedReader(lector);
+			String linea;
+			while ((linea = br.readLine()) != null) {
+				
+				String[] campos = linea.split("\\|");
+				if (campos.length < 7) {
+					continue;//Saltamos las líneas si contienen menos campos de los que deberían
+				}				
+				Long id = Long.valueOf(campos[0]);
+				String nombreUsuario = campos[1]; // Índice 1: nombre_usuario
+
+				if(actual.getNombre().equals(nombreUsuario)) {
+					ret = id;
+					break;
+				}
+
+			}
+		} catch (Exception e) {
+			System.err.println("Error al leer el archivo de credenciales: " + e.getMessage());
+			e.printStackTrace();
+		}
+
+	    return ret;
+	}
+	
+	private static void guardarEspectaculo(Espectaculo espectaculo) {
+	    String rutaArchivo = "src/main/resources/ficheros/espectaculos.dat";
+	    File archivo = new File(rutaArchivo);
+
+	    // Crear el directorio si no existe
+	    archivo.getParentFile().mkdirs();
+
+	    List<Espectaculo> espectaculos = new ArrayList<>();
+
+	    // Leer los espectáculos existentes
+	    if (archivo.exists()) {
+	        try (ObjectInputStream ois = new ObjectInputStream(new FileInputStream(archivo))) {
+	            while (true) {
+	                try {
+	                    espectaculos.add((Espectaculo) ois.readObject());
+	                } catch (EOFException e) {
+	                    break; // Fin del archivo
+	                }
+	            }
+	        } catch (IOException | ClassNotFoundException e) {
+	            System.err.println("Error al leer el archivo de espectáculos: " + e.getMessage());
+	            e.printStackTrace();
+	        }
+	    }
+
+	    // Añadir el nuevo espectáculo
+	    espectaculos.add(espectaculo);
+
+	    // Guardar todos los espectáculos en el archivo
+	    try (ObjectOutputStream oos = new ObjectOutputStream(new FileOutputStream(archivo))) {
+	        for (Espectaculo esp : espectaculos) {
+	            oos.writeObject(esp);
+	        }
+	    } catch (IOException e) {
+	        System.err.println("Error al guardar el espectáculo: " + e.getMessage());
+	        e.printStackTrace();
+	    }
+	}
 
 
 }

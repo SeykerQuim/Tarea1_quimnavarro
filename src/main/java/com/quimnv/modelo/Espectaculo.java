@@ -15,6 +15,19 @@ public class Espectaculo implements Serializable{
     private Set<Numero> numeros = new HashSet<>();
     
     public Espectaculo() {}
+    
+    
+
+	public Espectaculo(Long idEspectaculo, String nombre, LocalDate fechaini, LocalDate fechafin, Long idCoord) {
+		super();
+		this.idEspectaculo = idEspectaculo;
+		this.nombre = nombre;
+		this.fechaini = fechaini;
+		this.fechafin = fechafin;
+		this.idCoord = idCoord;
+	}
+
+
 
 	public Espectaculo(Long idEspectaculo, String nombre, LocalDate fechai, LocalDate fechafin, Long idCoord,
 			Set<Numero> numeros) {
