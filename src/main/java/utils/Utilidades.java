@@ -7,6 +7,7 @@
 
 package utils;
 
+import java.time.DateTimeException;
 import java.time.LocalDate;
 import java.util.InputMismatchException;
 import java.util.Scanner;
@@ -94,6 +95,25 @@ public class Utilidades {
 					System.out.println("No ha introducido un valor entero válido.");
 				}
 			} while (!correcto);
+			do {
+				correcto = false;
+				System.out.println("Introduzca un valor entero para el año:");
+				try {
+					any = in.nextInt();
+					correcto = true;
+				} catch (InputMismatchException e) {
+					System.out.println("No ha introducido un valor entero válido.");
+				}
+			} while (!correcto);
+			try {
+				ret = LocalDate.of(any, mes, dia);
+				correcto = true;
+			} catch (DateTimeException e) {
+				System.out.println("La fecha introducida no es válida.");
+				e.printStackTrace();
+			}
+				
+			
 		} while (!correcto);
 		return ret;
 	}

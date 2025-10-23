@@ -9,3 +9,4 @@
 9|isabel|isabel|mijr@educastur.org|María Isabel Jardón|España|coordinador
 10|eusebio|eusebio85|eusebio85@gmail.com|Eusebio Prados-García|Venezuela|artista
 11|quimnv|quimnv|quim@seyker.eu|Quim Navarro|España|artista
+1|adri|adri|adrian@goat.com|Adrian|Vietnam|artista

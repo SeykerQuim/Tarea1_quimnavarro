@@ -109,34 +109,32 @@ public class Main {
 				System.out.println("\n--- Entrando en el menú de acceso al usuario\n");
 				ret = Login();
 				break;
-			default:
-				break;
 			}
 			break;
 		case ADMIN:
 			switch (opcion) {
 			case 1:
-					System.out.println("\n--- Entrando en el menú de gestión de personas y credenciales...\n");
-					menuPersonas();
-					ret = actual;
+				System.out.println("\n--- Entrando en el menú de gestión de personas y credenciales...\n");
+				menuPersonas();
+				ret = actual;
 				break;
 			case 2:
-					System.out.println("\n--- Entrando en el menú de gestión de espectáculos...\n");
-					menuEspectaculos(actual);
-					ret = actual;
-				break;
-			default:
+				System.out.println("\n--- Entrando en el menú de gestión de espectáculos...\n");
+				menuEspectaculos(actual);
+				ret = actual;
 				break;
 			}
 		case COORDINADOR:
 			switch (opcion) {
 			case 1:
-					System.out.println("\n--- Entrando en el menú de gestión de espectáculos...\n");
-					menuEspectaculos(actual);
-					ret=actual;
+				System.out.println("Ver espectáculos del circo:");
+				verEspectaculos();
+				ret = actual;
 				break;
-
-			default:
+			case 2:
+				System.out.println("\n--- Entrando en el menú de gestión de espectáculos...\n");
+				menuEspectaculos(actual);
+				ret=actual;
 				break;
 			}
 		default:
@@ -161,18 +159,10 @@ public class Main {
 			System.out.print("Por favor, introduce tu contraseña:");
 			String contrassenya = Utilidades.leerString();
 			System.out.println("contraseña introducida:"+contrassenya);
-			Properties propiedades = new Properties();
-			try (FileInputStream entrada = new FileInputStream("src/main/resources/application.properties")){
-				propiedades.load(entrada);
-			} catch (IOException e) {
-				System.err.println("Error de Excepción de tipo IOException al cargar el fichero ");
-				e.printStackTrace();
-			}
 
 			// Comprobamos los datos del admin primero
-			String usuarioAdmin = propiedades.getProperty("usuarioAdmin");
-			String contrassenyaAdmin = propiedades.getProperty("passwordAdmin");
-
+			String usuarioAdmin = obtenerPropiedad("usuarioAdmin");
+			String contrassenyaAdmin = obtenerPropiedad("passwordAdmin");
 
 			if (user.equals(usuarioAdmin) && contrassenya.equals(contrassenyaAdmin)) {
 				ret.setNombre(usuarioAdmin);
@@ -184,9 +174,8 @@ public class Main {
 			}
 
 			// Comprobamos el archivo de credenciales
-			String ruta = propiedades.getProperty("ficherocredenciales");
 			FileReader lector = null;
-			File fichero = new File(ruta);
+			File fichero = new File(obtenerPropiedad("ficherocredenciales"));
 			BufferedReader br = null;
 
 			try {
@@ -202,6 +191,7 @@ public class Main {
 
 					String nombreUsuario = campos[1]; // Índice 1: nombre_usuario
 					String password = campos[2];     // Índice 2: password
+					String nom = campos[4];     // Índice 2: password
 					String perfilLogin = campos[6].toUpperCase();
 
 					// El fichero credenciales.txt sigue esta plantilla para cada línea:
@@ -209,9 +199,12 @@ public class Main {
 					if(user.equals(nombreUsuario) && contrassenya.equals(password)) {
 						ret.setNombre(nombreUsuario);
 						ret.setPerfil(Perfiles.valueOf(perfilLogin));
-						System.out.println("\n--- ¡Bienvenido! Se ha autenticado usted como" +perfilLogin+ ". ---\n");
+						System.out.println("\n--- ¡Bienvenido "+nom+"! Se ha autenticado usted como" +perfilLogin+ ". ---\n");
 						valido = true;
 						break;
+					} else {
+						System.out.println("Los datos introducidos no pertenecen a ningún usuario, inténtelo de nuevo.");
+
 					}
 
 				}
@@ -219,7 +212,6 @@ public class Main {
 				System.err.println("Error al leer el archivo de credenciales: " + e.getMessage());
 				e.printStackTrace();
 			}
-			System.out.println("Los datos introducidos no pertenecen a ningún usuario, inténtelo de nuevo.");
 
 		} while (!valido);
 
@@ -239,49 +231,53 @@ public class Main {
 		do {
 			switch (actual.getPerfil()) {
 			case INVITADO:{
-							System.out.println("\nIntroduzca el número de la opción deseada:");
-							System.out.println("\t1.- Ver espectáculos");
-							System.out.println("\t2.- Iniciar sesión.");
-							System.out.println("\t0.- Salir");
-							seleccion = Utilidades.leerEntero();
-							if (seleccion < 0 || seleccion > 2) {
-								System.out.println("Opción no disponible. Por favor seleccione una opción.");
-								seleccion = -1;
-							}
-						}
-				break;
+				System.out.println("\nIntroduzca el número de la opción deseada:");
+				System.out.println("\t1.- Ver espectáculos");
+				System.out.println("\t2.- Iniciar sesión.");
+				System.out.println("\t0.- Salir");
+				seleccion = Utilidades.leerEntero();
+				if (seleccion < 0 || seleccion > 2) {
+					System.out.println("Opción no disponible. Por favor seleccione una opción.");
+					seleccion = -1;
+				}
+			}
+			break;
 			case ARTISTA: {
-							System.out.println("\n=== Menú de Artista en construcción ===\n-------------------------------------\nIntroduzca el número de la opción deseada:");
-							System.out.println("\t1.- Ver su ficha de artista.");
-							System.out.println("\t2.- Ver espectáculos.");
-							System.out.println("\t0.- Salir");
-							seleccion = Utilidades.leerEntero();
-							if (seleccion < 0 || seleccion > 2) {
-								System.out.println("Opción no disponible. Por favor seleccione una opción correcta.");
-								seleccion = -1;
-							}
-						}
-				break;
+				System.out.println("\n=== Menú de Artista ===\n-------------------------------------\nIntroduzca el número de la opción deseada:");
+				System.out.println("\t1.- Ver su ficha de artista.");
+				System.out.println("\t2.- Ver espectáculos.");
+				System.out.println("\t0.- Salir");
+				seleccion = Utilidades.leerEntero();
+				if (seleccion < 0 || seleccion > 2) {
+					System.out.println("Opción no disponible. Por favor seleccione una opción correcta.");
+					seleccion = -1;
+				}
+			}
+			break;
 			case COORDINADOR: {
-								System.out.println("\n=== Menú de Coordinador en construcción ===\n-------------------------------------\ndIntroduzca el número de la opción deseada:");
-								System.out.println("\t1.- Gestionar personas y credenciales.");
-								System.out.println("\t2.- Gestionar espectáculos.");
-								System.out.println("\t0.- Salir");
-							}
-				break;
+				System.out.println("\n=== Menú de Coordinador ===\n-------------------------------------\ndIntroduzca el número de la opción deseada:");
+				System.out.println("\t1.- Ver espectáculos.");
+				System.out.println("\t2.- Gestionar espectáculos");
+				System.out.println("\t0.- Salir");
+				seleccion = Utilidades.leerEntero();
+				if (seleccion < 0 || seleccion > 2) {
+					System.out.println("Opción no disponible. Por favor seleccione una opción correcta.");
+					seleccion = -1;
+				}
+			}
+			break;
 			case ADMIN: {
-							System.out.println("\n=== Menú de administración ===\n------------------------------\"\nIntroduzca el número de la opción deseada:");
-							System.out.println("\t1.- Gestión de personas y credenciales.");
-							System.out.println("\t2.- Gestión de espectáculos.");
-							System.out.println("\t0.- Salir.");
-							int opcion = Utilidades.leerEntero();
-							if (opcion < 0 || opcion > 2) {
-								System.out.println("Opción no disponible. Por favor seleccione una opción.");
-								opcion = -1;
-							}
-							seleccion = opcion;
-						}
-				break;
+				System.out.println("\n=== Menú de administración ===\n------------------------------\"\nIntroduzca el número de la opción deseada:");
+				System.out.println("\t1.- Gestión de personas y credenciales.");
+				System.out.println("\t2.- Gestión de espectáculos.");
+				System.out.println("\t0.- Salir.");
+				seleccion = Utilidades.leerEntero();
+				if (seleccion < 0 || seleccion > 2) {
+					System.out.println("Opción no disponible. Por favor seleccione una opción correcta.");
+					seleccion = -1;
+				}
+			}
+			break;
 			}
 		} while (seleccion == -1);
 
@@ -309,26 +305,27 @@ public class Main {
 			}
 			switch (opcion) {
 			case 0:
-					System.out.println("\n--- Volviendo al menú de administración.");
-					valido=true;
+				System.out.println("\n--- Volviendo al menú de administración.");
+				valido=true;
 				break;
 			case 1:
-					Persona registrado = registrarPersona();
+				Persona registrado = registrarPersona();
 				break;
 			case 2: 
-					System.out.println("Opción no implementada, disculpe las molestias.");
+				System.out.println("Opción no implementada, disculpe las molestias.");
 				break;
-				}
+			}
 		} while (!valido);
 	}
-	
+
 	public static void menuEspectaculos(Sesion actual) {
 		boolean valido = false;
 		do {
 			System.out.println("\n-----------------------------------------------------------\n=== Bienvenido a la gestión de espectáculos. ===\n-----------------------------------------------------------\"\nIntroduzca el número de la opción deseada:");
-			System.out.println("\t1.- Crear o modificar espectáculos.");
-			System.out.println("\t2.- Asignar artistas (no disponible).");
-			System.out.println("\t3.- Crear o modificar números (no disponible).");
+			System.out.println("\t1.- Ver espectáculos.");
+			System.out.println("\t2.- Crear o modificar espectáculos.");
+			System.out.println("\t3.- Asignar artistas (no disponible).");
+			System.out.println("\t4.- Crear o modificar números (no disponible).");
 			System.out.println("\t0.- Salir.");
 			int opcion = Utilidades.leerEntero();
 			if (opcion <0 || opcion >2) {
@@ -338,21 +335,24 @@ public class Main {
 			}
 			switch (opcion) {
 			case 0:
-					System.out.println("\n--- Volviendo al menú de administración.");
-					valido=true;
+				System.out.println("\n--- Volviendo al menú de administración.");
+				valido=true;
 				break;
 			case 1:
-					gestionarEspectaculo(actual);
+				verEspectaculos();
 				break;
-			case 2: 
-					System.out.println("Opción no implementada, disculpe las molestias.");
+			case 2:
+				gestionarEspectaculo(actual);
 				break;
 			case 3: 
 				System.out.println("Opción no implementada, disculpe las molestias.");
-			break;
-				}
+				break;
+			case 4: 
+				System.out.println("Opción no implementada, disculpe las molestias.");
+				break;
+			}
 		} while (!valido);
-		
+
 	}
 
 	public static Persona registrarPersona() {
@@ -369,16 +369,8 @@ public class Main {
 			String nombre = Utilidades.leerString();
 			System.out.print("Seleccione su nacionalidad introduciendo el ID de país (por ejemplo ES para España):");
 
-			// Cargamos desde propiedades el archivo
-			Properties propiedades = new Properties();
-			try (FileInputStream entrada = new FileInputStream("src/main/resources/application.properties")){
-				propiedades.load(entrada);
-			} catch (IOException e) {
-				System.err.println("Error de Excepción de tipo IOException al cargar el fichero ");
-				e.printStackTrace();
-			}
 
-			String nacionalidad=seleccionarPais(propiedades);
+			String nacionalidad=seleccionarPais();
 
 
 
@@ -403,28 +395,28 @@ public class Main {
 						System.out.println("1.- Acrobacia\n2.- Humor\n3.- Magia\n4.- Equilibrismo\n5.- Malabarismo\n0.- Terminar");
 						int seleccion = Utilidades.leerEntero();
 						switch (seleccion) {
-							case 1: especialidadesReg.add(Especialidad.ACROBACIA);
-								break;
-							case 2: especialidadesReg.add(Especialidad.HUMOR);
-								break;
-							case 3: especialidadesReg.add(Especialidad.MAGIA);
-								break;
-							case 4: especialidadesReg.add(Especialidad.EQUILIBRISMO);
-								break;
-							case 5: especialidadesReg.add(Especialidad.MALABARISMO);
-								break;
-							case 0: if (especialidadesReg.isEmpty()) {
-									System.out.println("Por favor, introduzca al menos una especialidad.");
-								} else {
-									System.out.println("Ha introducido las siguientes especialidades:");
-									for (Especialidad especialidad : especialidadesReg) {
-										System.out.println(especialidad.toString().toLowerCase());
-									}
-									especialidadesValido = true;
-								}
-								break;
-							default: System.out.println("Por favor, introduzca una opción válida.");
-								break;
+						case 1: especialidadesReg.add(Especialidad.ACROBACIA);
+						break;
+						case 2: especialidadesReg.add(Especialidad.HUMOR);
+						break;
+						case 3: especialidadesReg.add(Especialidad.MAGIA);
+						break;
+						case 4: especialidadesReg.add(Especialidad.EQUILIBRISMO);
+						break;
+						case 5: especialidadesReg.add(Especialidad.MALABARISMO);
+						break;
+						case 0: if (especialidadesReg.isEmpty()) {
+							System.out.println("Por favor, introduzca al menos una especialidad.");
+						} else {
+							System.out.println("Ha introducido las siguientes especialidades:");
+							for (Especialidad especialidad : especialidadesReg) {
+								System.out.println(especialidad.toString().toLowerCase());
+							}
+							especialidadesValido = true;
+						}
+						break;
+						default: System.out.println("Por favor, introduzca una opción válida.");
+						break;
 						}
 					} while (!especialidadesValido);
 					perfilReg=Perfiles.ARTISTA;
@@ -449,13 +441,13 @@ public class Main {
 			System.out.print("Introduce el correo eléctronico del usuario:");
 			String correo = Utilidades.leerString();
 			Boolean registrovalido = comprobarRegistroExistente(valido, user, correo);
-			
+
 			if (registrovalido) {
 				System.out.println("¿Quiere confirmar el registro?");
 				boolean confirmarRegistro = esValido();
 				if (confirmarRegistro) {
 					System.out.println("Registrado nuevo usuario");
-					int nuevoId = obtenerUltimoId();
+					Long nuevoId = obtenerUltimoId();
 					escribirEnArchivo(nuevoId, user, contrassenya, correo, nombre, nacionalidad, perfilReg);
 					if (perfilReg.equals(Perfiles.ARTISTA)) {
 						ret = new Artista(Long.valueOf(nuevoId), correo, nombre, nacionalidad, Long.valueOf(nuevoId), apodoReg, especialidadesReg);
@@ -465,7 +457,7 @@ public class Main {
 						valido = true;
 					} 
 				}
-				
+
 			}
 
 
@@ -474,10 +466,9 @@ public class Main {
 		return ret;
 	}
 
-	private static String seleccionarPais(Properties propiedades) {
+	private static String seleccionarPais() {
 		String ret="";
-		String ficheropaises = propiedades.getProperty("ficherosnacionalidades");
-		File paisesArchivo = new File(ficheropaises);
+		File paisesArchivo = new File(obtenerPropiedad("ficherosnacionalidades"));
 		Map<String, String> paises = new HashMap<String, String>();
 
 		try {
@@ -531,17 +522,8 @@ public class Main {
 
 	private static boolean comprobarRegistroExistente(boolean valido,
 			String user, String correo) {
-		Properties propiedades = new Properties();
-		try (FileInputStream entrada = new FileInputStream("src/main/resources/application.properties")){
-			propiedades.load(entrada);
-		} catch (IOException e) {
-			System.err.println("Error de Excepción de tipo IOException al cargar el fichero ");
-			e.printStackTrace();
-		}
-		// Comprobamos el archivo de credenciales
-		String ruta = propiedades.getProperty("ficherocredenciales");
 		FileReader lector = null;
-		File fichero = new File(ruta);
+		File fichero = new File(obtenerPropiedad("ficherocredenciales"));
 		BufferedReader br = null;
 		try {
 			lector = new FileReader(fichero);
@@ -595,48 +577,39 @@ public class Main {
 			}
 		}
 	}
-	private static int obtenerUltimoId() {
-		int ultimoId = 0;
-		Properties propiedades = new Properties();
-		try (FileInputStream entrada = new FileInputStream("src/main/resources/application.properties")) {
-			propiedades.load(entrada);
-		} catch (IOException e) {
-			System.err.println("Error al cargar el archivo de propiedades.");
-			e.printStackTrace();
+	private static long obtenerUltimoId() {
+		Long ultimoId = 0L;
+		File fichero = new File(obtenerPropiedad("ficherocredenciales"));
+
+		if (!fichero.exists()) {
+			return 1; // Si el archivo no existe, el primer ID será 1
 		}
 
-		String ruta = propiedades.getProperty("ficherocredenciales");
-		File fichero = new File(ruta);
-
-		try (BufferedReader br = new BufferedReader(new FileReader(fichero))) {
-			String linea;
-			while ((linea = br.readLine()) != null) {
-				String[] campos = linea.split("\\|");
-				if (campos.length >= 1) {
-					int idActual = Integer.parseInt(campos[0]);
-					if (idActual > ultimoId) {
-						ultimoId = idActual;
+		try (ObjectInputStream ois = new ObjectInputStream(new FileInputStream(fichero))) {
+			while (true) {
+				try {
+					Espectaculo espectaculo = (Espectaculo) ois.readObject();
+					if (espectaculo.getIdEspectaculo() > ultimoId) {
+						ultimoId = espectaculo.getIdEspectaculo();
 					}
+				} catch (EOFException e) {
+					break; // Fin del archivo
 				}
 			}
-		} catch (Exception e) {
-			System.err.println("Error al leer el archivo de credenciales: " + e.getMessage());
+		} catch (IOException e) {
+			return 1;
+		} catch (ClassNotFoundException e) {
+			System.err.println("Error al leer el archivo de espectáculos: " + e.getMessage());
 			e.printStackTrace();
 		}
 
-		return ++ultimoId;
+		return ultimoId + 1; // Incrementamos el ID en 1
 	}
 
-	private static void escribirEnArchivo(int id, String user, String contrassenya, String correo, String nombre, String nacionalidad, Perfiles perfilReg) {
-		Properties propiedades = new Properties();
-		try (FileInputStream entrada = new FileInputStream("src/main/resources/application.properties")) {
-			propiedades.load(entrada);
-		} catch (IOException e) {
-			System.err.println("Error al cargar el archivo de propiedades.");
-			e.printStackTrace();
-		}
 
-		String ruta = propiedades.getProperty("ficherocredenciales");
+	private static void escribirEnArchivo(Long id, String user, String contrassenya, String correo, String nombre, String nacionalidad, Perfiles perfilReg) {
+
+		String ruta = obtenerPropiedad("ficherocredenciales");
 
 		try (FileWriter writer = new FileWriter(ruta, true)) {
 
@@ -657,52 +630,60 @@ public class Main {
 			e.printStackTrace();
 		}
 	}
-	
+
 	public static void verEspectaculos() {
-	    List<Espectaculo> espectaculos = new ArrayList<>();
-	    
-	    File espectaculosArchivo = obtenerFicheroEspectaculos();
+		List<Espectaculo> espectaculos = new ArrayList<>();
+
+		File espectaculosArchivo = new File(obtenerPropiedad("ficheroespectaculos"));
 
 
 
-	    if (!espectaculosArchivo.exists()) {
-	        System.out.println("El archivo de espectáculos no existe.");
-	        return;
-	    }
+		if (!espectaculosArchivo.exists()) {
+			System.out.println("El archivo de espectáculos no existe.");
+			return;
+		}
 
-	    try (ObjectInputStream ois = new ObjectInputStream(new FileInputStream(espectaculosArchivo))) {
-	        while (true) {
-	            try {
-	                Espectaculo espectaculo = (Espectaculo) ois.readObject();
-	                espectaculos.add(espectaculo);
-	            } catch (EOFException e) {
-	                break; // Fin del archivo
-	            }
-	        }
-	    } catch (IOException | ClassNotFoundException e) {
-	        System.err.println("Error al leer el archivo de espectáculos: " + e.getMessage());
-	        e.printStackTrace();
-	    }
+		try (ObjectInputStream ois = new ObjectInputStream(new FileInputStream(espectaculosArchivo))) {
+			while (true) {
+				try {
+					Espectaculo espectaculo = (Espectaculo) ois.readObject();
+					espectaculos.add(espectaculo);
+				} catch (EOFException e) {
+					break; // Fin del archivo
+				}
+			}
+		} catch (IOException | ClassNotFoundException e) {
+			System.err.println("Error al leer el archivo de espectáculos: " + e.getMessage());
+			e.printStackTrace();
+		}
 
-	    if (espectaculos.isEmpty()) {
-	        System.out.println("No hay espectáculos registrados.");
-	    } else {
-	        System.out.println("Lista de espectáculos:");
-	        System.out.println("--------------------------------------------------");
-	        System.out.printf("%-10s %-20s %-15s %-15s%n", "ID", "Nombre", "Fecha Inicio", "Fecha Fin");
-	        System.out.println("--------------------------------------------------");
+		if (espectaculos.isEmpty()) {
+			System.out.println("No hay espectáculos registrados.");
+		} else {
+			System.out.println("Lista de espectáculos:");
+			System.out.println("--------------------------------------------------");
+			System.out.printf("%-10s %-20s %-15s %-15s%n", "ID", "Nombre", "Fecha Inicio", "Fecha Fin");
+			System.out.println("--------------------------------------------------");
 
-	        for (Espectaculo espectaculo : espectaculos) {
-	            System.out.printf("%-10d %-20s %-15s %-15s%n",
-	                    espectaculo.getIdEspectaculo(),
-	                    espectaculo.getNombre(),
-	                    espectaculo.getFechaini(),
-	                    espectaculo.getFechafin());
-	        }
-	    }
+			for (Espectaculo espectaculo : espectaculos) {
+				System.out.printf("%-10d %-20s %-15s %-15s%n",
+						espectaculo.getIdEspectaculo(),
+						espectaculo.getNombre(),
+						espectaculo.getFechaini(),
+						espectaculo.getFechafin());
+			}
+		}
 	}
 
-	private static File obtenerFicheroEspectaculos() {
+	
+	/**
+	 * Método para obtener los datos del archivo aplication.properties deseados. Se introduce el nombre de la propiedad
+	 * Y devuelve un String con la ruta o el dato.
+	 * 
+	 * @param propiedad
+	 * @return String con el dato o ruta
+	 */
+	private static String obtenerPropiedad(String propiedad) {
 		Properties propiedades = new Properties();
 		try (FileInputStream entrada = new FileInputStream("src/main/resources/application.properties")){
 			propiedades.load(entrada);
@@ -710,100 +691,112 @@ public class Main {
 			System.err.println("Error de Excepción de tipo IOException al cargar el fichero ");
 			e.printStackTrace();
 		}
-	    
-	    String ficheroEspectaculos = propiedades.getProperty("ficheroespectaculos");
-		File espectaculosArchivo = new File(ficheroEspectaculos);
-		return espectaculosArchivo;
+
+		String propiedadDato = propiedades.getProperty(propiedad);
+		return propiedadDato;
 	}
+
 	
+	/**
+	 * Método para definir cual es el último ID de espectáculo y así definir al siguiente
+	 * @return Long para ID del espectáculo
+	 */
 	private static long obtenerUltimoIdEspectaculo() {
-	    long ultimoId = 0;
-	    File espectaculosArchivo = obtenerFicheroEspectaculos();
+		long ultimoId = 0;
+		File espectaculosArchivo = new File(obtenerPropiedad("ficheroespectaculos")) ;
 
-	    if (!espectaculosArchivo.exists()) {
-	        return 1; // Si el archivo no existe, el primer ID será 1
-	    }
+		if (!espectaculosArchivo.exists()) {
+			return 1; // Si el archivo no existe, el primer ID será 1
+		}
 
-	    try (ObjectInputStream ois = new ObjectInputStream(new FileInputStream(espectaculosArchivo))) {
-	        while (true) {
-	            try {
-	                Espectaculo espectaculo = (Espectaculo) ois.readObject();
-	                if (espectaculo.getIdEspectaculo() > ultimoId) {
-	                    ultimoId = espectaculo.getIdEspectaculo();
-	                }
-	            } catch (EOFException e) {
-	                break; // Fin del archivo
-	            }
-	        }
-	    } catch (IOException | ClassNotFoundException e) {
-	        System.err.println("Error al leer el archivo de espectáculos: " + e.getMessage());
-	        e.printStackTrace();
-	    }
-
-	    return ultimoId + 1; // Incrementamos el ID en 1
-	}
-	
-	private static boolean validarNombreEspectaculo(String nombre) {
-	    if (nombre.length() > 25) {
-	        System.err.println("El nombre del espectáculo no puede superar los 25 caracteres.");
-	        return false;
-	    }
-
-	    String rutaArchivo = "src/main/resources/ficheros/espectaculos.dat";
-	    File archivo = new File(rutaArchivo);
-
-	    if (!archivo.exists()) {
-	        return true; // Si el archivo no existe, el nombre es válido
-	    }
-
-	    try (ObjectInputStream ois = new ObjectInputStream(new FileInputStream(archivo))) {
-	        while (true) {
-	            try {
-	                Espectaculo espectaculo = (Espectaculo) ois.readObject();
-	                if (espectaculo.getNombre().equalsIgnoreCase(nombre)) {
-	                    System.err.println("El nombre del espectáculo ya existe.");
-	                    return false;
-	                }
-	            } catch (EOFException e) {
-	                break; // Fin del archivo
-	            }
-	        }
-	    } catch (IOException | ClassNotFoundException e) {
-	        System.err.println("Error al leer el archivo de espectáculos: " + e.getMessage());
-	        e.printStackTrace();
-	    }
-
-	    return true;
-	}
-
-	private static boolean validarFechasEspectaculo(LocalDate fechaIni, LocalDate fechaFin) {
-	    if (fechaIni.isAfter(fechaFin)) {
-	        System.err.println("La fecha de inicio no puede ser posterior a la fecha de fin.");
-	        return false;
-	    }
-
-	    if (fechaFin.isAfter(fechaIni.plusYears(1))) {
-	        System.err.println("El periodo de fechas no puede superar 1 año.");
-	        return false;
-	    }
-
-	    return true;
-	}
-	
-	private static Long seleccionarCoordinador() {
-	    List<Coordinador> coordinadores = new ArrayList<>();
-	    
-	    Properties propiedades = new Properties();
-		try (FileInputStream entrada = new FileInputStream("src/main/resources/application.properties")){
-			propiedades.load(entrada);
-		} catch (IOException e) {
-			System.err.println("Error de Excepción de tipo IOException al cargar el fichero ");
+		try (ObjectInputStream ois = new ObjectInputStream(new FileInputStream(espectaculosArchivo))) {
+			while (true) {
+				try {
+					Espectaculo espectaculo = (Espectaculo) ois.readObject();
+					if (espectaculo.getIdEspectaculo() > ultimoId) {
+						ultimoId = espectaculo.getIdEspectaculo();
+					}
+				} catch (EOFException e) {
+					break; // Fin del archivo
+				}
+			}
+		} catch (IOException | ClassNotFoundException e) {
+			System.err.println("Error al leer el archivo de espectáculos: " + e.getMessage());
 			e.printStackTrace();
 		}
-		
-		String ruta = propiedades.getProperty("ficherocredenciales");
+
+		return ultimoId + 1; // Incrementamos el ID en 1
+	}
+
+	/**
+	 * Método para validar que el nombre del espectáculo que se está creando no existe ya y cumple con los
+	 * requisitos de tamaño máximo.
+	 * @param nombre
+	 * @return Booleano que verifica si es válido o no.
+	 */
+	private static boolean validarNombreEspectaculo(String nombre) {
+		if (nombre.length() > 25) {
+			System.err.println("El nombre del espectáculo no puede superar los 25 caracteres.");
+			return false;
+		}
+
+		File archivo = new File(obtenerPropiedad("ficheroespectaculos"));
+
+		if (!archivo.exists()) {
+			return true; // Si el archivo no existe, el nombre es válido
+		}
+
+		try (ObjectInputStream ois = new ObjectInputStream(new FileInputStream(archivo))) {
+			while (true) {
+				try {
+					Espectaculo espectaculo = (Espectaculo) ois.readObject();
+					if (espectaculo.getNombre().equalsIgnoreCase(nombre)) {
+						System.err.println("El nombre del espectáculo ya existe.");
+						return false;
+					}
+				} catch (EOFException e) {
+					break; 
+				}
+			}
+		} catch (IOException | ClassNotFoundException e) {
+			System.err.println("Error al leer el archivo de espectáculos: " + e.getMessage());
+			e.printStackTrace();
+		}
+
+		return true;
+	}
+	
+	/**
+	 * Método para validar que las fechas del espectáculo cumplen con el tiempo máximo entre inicio
+	 * y final de 1 año
+	 * @param fechaIni
+	 * @param fechaFin
+	 * @return Booleano con la validación
+	 */
+	private static boolean validarFechasEspectaculo(LocalDate fechaIni, LocalDate fechaFin) {
+		if (fechaIni.isAfter(fechaFin)) {
+			System.err.println("La fecha de inicio no puede ser posterior a la fecha de fin.");
+			return false;
+		}
+
+		if (fechaFin.isAfter(fechaIni.plusYears(1))) {
+			System.err.println("El periodo de fechas no puede superar 1 año.");
+			return false;
+		}
+
+		return true;
+	}
+
+	/**
+	 * Método para seleccionar el coordinador de entre los existentes.
+	 * @return Long del id del coordinador
+	 */
+	private static Long seleccionarCoordinador() {
+		List<Coordinador> coordinadores = new ArrayList<>();
+		System.out.println("Selección de coordinador");
+
 		FileReader lector = null;
-		File fichero = new File(ruta);
+		File fichero = new File(obtenerPropiedad("ficherocredenciales"));
 		BufferedReader br = null;
 
 		try {
@@ -812,7 +805,7 @@ public class Main {
 			String linea;
 			int i = 0;
 			while ((linea = br.readLine()) != null) {
-				
+
 				String[] campos = linea.split("\\|");
 				if (campos.length < 7) {
 					continue;//Saltamos las líneas si contienen menos campos de los que deberían
@@ -828,9 +821,9 @@ public class Main {
 				String perfilLogin = campos[6].toUpperCase();
 				Coordinador coordinador = new Coordinador(id,nombreUsuario,email,nombre,idCord,senior,fechasenior);
 
-				if(perfilLogin.equals("COORDINACION")) {
+				if(perfilLogin.equals("COORDINADOR")) {
 					i++;
-					
+
 					coordinadores.add(coordinador);
 					System.out.println(i+".- "+nombre);
 				}
@@ -840,73 +833,73 @@ public class Main {
 			System.err.println("Error al leer el archivo de credenciales: " + e.getMessage());
 			e.printStackTrace();
 		}
-		
 
-	    int opcion = Utilidades.leerEntero();
-	    if (opcion < 1 || opcion > coordinadores.size()) {
-	        System.err.println("Opción no válida.");
-	        return null;
-	    }
 
-	    return coordinadores.get(opcion - 1).getId();
-	}
-	
-	public static void gestionarEspectaculo(Sesion actual) {
-	    System.out.println("------------------------------\n=== Gestionar Espectáculo ===\n------------------------------");
-
-	    System.out.print("Introduce el nombre del espectáculo (máximo 25 caracteres): ");
-	    String nombre = Utilidades.leerString();
-
-	    if (!validarNombreEspectaculo(nombre)) {
-	        return;
-	    }
-
-	    System.out.print("Introduce la fecha de inicio (YYYY-MM-DD): ");
-	    LocalDate fechaIni = Utilidades.leerFecha();
-
-	    System.out.print("Introduce la fecha de fin (YYYY-MM-DD): ");
-	    LocalDate fechaFin = Utilidades.leerFecha();
-
-	    if (!validarFechasEspectaculo(fechaIni, fechaFin)) {
-	        return;
-	    }
-
-	    Long idCoord;
-	    if (actual.getPerfil() == Perfiles.ADMIN) {
-	        idCoord = seleccionarCoordinador();
-	        if (idCoord == null) {
-	            return;
-	        }
-	    } else {
-	    	
-	        idCoord = idCoordinadorActual(actual); // Asignar el ID del coordinador actual
-	    }
-
-	    long nuevoId = obtenerUltimoIdEspectaculo();
-	    Espectaculo nuevoEspectaculo = new Espectaculo(nuevoId, nombre, fechaIni, fechaFin, idCoord);
-
-	    // Guardar el espectáculo en el archivo
-	    guardarEspectaculo(nuevoEspectaculo);
-
-	    System.out.println("Espectáculo creado con éxito. ID: " + nuevoId);
-	}
-	
-	
-
-	private static Long idCoordinadorActual(Sesion actual) {
-	    Long ret = 0L;
-		
-	    Properties propiedades = new Properties();
-		try (FileInputStream entrada = new FileInputStream("src/main/resources/application.properties")){
-			propiedades.load(entrada);
-		} catch (IOException e) {
-			System.err.println("Error de Excepción de tipo IOException al cargar el fichero ");
-			e.printStackTrace();
+		int opcion = Utilidades.leerEntero();
+		if (opcion < 1 || opcion > coordinadores.size()) {
+			System.err.println("Opción no válida.");
+			return null;
 		}
-		
-		String ruta = propiedades.getProperty("ficherocredenciales");
+
+		return coordinadores.get(opcion - 1).getId();
+	}
+
+	/**
+	 * Método para la entrada de un nuevo espectáculo, pide los datos, los valida y crea el Espectáculo,
+	 * llamando a métodos para escribirlo en su archivo
+	 * @param actual
+	 */
+	public static void gestionarEspectaculo(Sesion actual) {
+		System.out.println("------------------------------\n=== Gestionar Espectáculo ===\n------------------------------");
+
+		System.out.print("Introduce el nombre del espectáculo (máximo 25 caracteres): ");
+		String nombre = Utilidades.leerString();
+
+		if (!validarNombreEspectaculo(nombre)) {
+			return;
+		}
+
+		System.out.println("\nIntroduce la fecha de inicio: ");
+		LocalDate fechaIni = Utilidades.leerFecha();
+
+		System.out.println("\nIntroduce la fecha de fin: ");
+		LocalDate fechaFin = Utilidades.leerFecha();
+
+		if (!validarFechasEspectaculo(fechaIni, fechaFin)) {
+			return;
+		}
+
+		Long idCoord;
+		if (actual.getPerfil() == Perfiles.ADMIN) {
+			idCoord = seleccionarCoordinador();
+			if (idCoord == null) {
+				return;
+			}
+		} else {
+
+			idCoord = idCoordinadorActual(actual); // Asignar el ID del coordinador actual
+		}
+
+		long nuevoId = obtenerUltimoIdEspectaculo();
+		Espectaculo nuevoEspectaculo = new Espectaculo(nuevoId, nombre, fechaIni, fechaFin, idCoord);
+
+		// Guardar el espectáculo en el archivo
+		guardarEspectaculo(nuevoEspectaculo);
+
+		System.out.println("Espectáculo creado con éxito. ID: " + nuevoId);
+	}
+
+
+	/**
+	 * Método para obtener el ID del coordinador que está en la Sesión actual
+	 * @param actual
+	 * @return Long con ID del coordinador en sesión
+	 */
+	private static Long idCoordinadorActual(Sesion actual) {
+		Long ret = 0L;
+
 		FileReader lector = null;
-		File fichero = new File(ruta);
+		File fichero = new File(obtenerPropiedad("ficherocredenciales"));
 		BufferedReader br = null;
 
 		try {
@@ -914,7 +907,7 @@ public class Main {
 			br = new BufferedReader(lector);
 			String linea;
 			while ((linea = br.readLine()) != null) {
-				
+
 				String[] campos = linea.split("\\|");
 				if (campos.length < 7) {
 					continue;//Saltamos las líneas si contienen menos campos de los que deberían
@@ -933,46 +926,49 @@ public class Main {
 			e.printStackTrace();
 		}
 
-	    return ret;
+		return ret;
 	}
-	
+
+	/**
+	 * Método para guardar el Espectáculo creado en su archivo correspondiente
+	 * @param espectaculo
+	 */
 	private static void guardarEspectaculo(Espectaculo espectaculo) {
-	    String rutaArchivo = "src/main/resources/ficheros/espectaculos.dat";
-	    File archivo = new File(rutaArchivo);
+		File archivo = new File(obtenerPropiedad("ficheroespectaculos"));
 
-	    // Crear el directorio si no existe
-	    archivo.getParentFile().mkdirs();
+		// Crear el directorio si no existe
+		archivo.getParentFile().mkdirs();
 
-	    List<Espectaculo> espectaculos = new ArrayList<>();
+		List<Espectaculo> espectaculos = new ArrayList<>();
 
-	    // Leer los espectáculos existentes
-	    if (archivo.exists()) {
-	        try (ObjectInputStream ois = new ObjectInputStream(new FileInputStream(archivo))) {
-	            while (true) {
-	                try {
-	                    espectaculos.add((Espectaculo) ois.readObject());
-	                } catch (EOFException e) {
-	                    break; // Fin del archivo
-	                }
-	            }
-	        } catch (IOException | ClassNotFoundException e) {
-	            System.err.println("Error al leer el archivo de espectáculos: " + e.getMessage());
-	            e.printStackTrace();
-	        }
-	    }
+		// Leer los espectáculos existentes
+		if (archivo.exists()) {
+			try (ObjectInputStream ois = new ObjectInputStream(new FileInputStream(archivo))) {
+				while (true) {
+					try {
+						espectaculos.add((Espectaculo) ois.readObject());
+					} catch (EOFException e) {
+						break; // Fin del archivo
+					}
+				}
+			} catch (IOException | ClassNotFoundException e) {
+				System.err.println("Error al leer el archivo de espectáculos: " + e.getMessage());
+				e.printStackTrace();
+			}
+		}
 
-	    // Añadir el nuevo espectáculo
-	    espectaculos.add(espectaculo);
+		// Añadir el nuevo espectáculo
+		espectaculos.add(espectaculo);
 
-	    // Guardar todos los espectáculos en el archivo
-	    try (ObjectOutputStream oos = new ObjectOutputStream(new FileOutputStream(archivo))) {
-	        for (Espectaculo esp : espectaculos) {
-	            oos.writeObject(esp);
-	        }
-	    } catch (IOException e) {
-	        System.err.println("Error al guardar el espectáculo: " + e.getMessage());
-	        e.printStackTrace();
-	    }
+		// Guardar todos los espectáculos en el archivo
+		try (ObjectOutputStream oos = new ObjectOutputStream(new FileOutputStream(archivo))) {
+			for (Espectaculo esp : espectaculos) {
+				oos.writeObject(esp);
+			}
+		} catch (IOException e) {
+			System.err.println("Error al guardar el espectáculo: " + e.getMessage());
+			e.printStackTrace();
+		}
 	}
 
 
