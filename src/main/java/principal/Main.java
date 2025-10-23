@@ -95,6 +95,12 @@ public class Main {
 
 	}
 
+	/**
+	 * Método para gestionar las opciones tomadas en el submenú de cada sesión
+	 * @param actual
+	 * @param opcion
+	 * @return Sesion, devuelve la sesión correspondiente tras loguear o navegar
+	 */
 	private static Sesion submenuSesion(Sesion actual, int opcion) {
 		Sesion ret = null;
 		switch (actual.getPerfil()) {
@@ -288,7 +294,7 @@ public class Main {
 
 
 	/**
-	 * Menú de gestión de personas que vuelve a la 
+	 * Menú de gestión de personas que vuelve al menú anterior al salir
 	 */
 	public static void menuPersonas() {
 		boolean valido = false;
@@ -317,7 +323,11 @@ public class Main {
 			}
 		} while (!valido);
 	}
-
+	
+	/**
+	 * Menú de gestión de espectáculos, de momento solo permite verlos y crearlos.
+	 * @param actual
+	 */
 	public static void menuEspectaculos(Sesion actual) {
 		boolean valido = false;
 		do {
@@ -355,6 +365,10 @@ public class Main {
 
 	}
 
+	/**
+	 * Método para registrar una persona con los datos facilitados por el usuario
+	 * @return Persona generada
+	 */
 	public static Persona registrarPersona() {
 		String apodoReg = "";
 		Set<Especialidad> especialidadesReg = new HashSet<>();
@@ -466,6 +480,11 @@ public class Main {
 		return ret;
 	}
 
+	/**
+	 * Método para la selección de país que lee las nacionalidades de paises.xml y las muestra para que el usuario
+	 * la seleccione según su ID de país.
+	 * @return String de nacionalidad para la creación de persona
+	 */
 	private static String seleccionarPais() {
 		String ret="";
 		File paisesArchivo = new File(obtenerPropiedad("ficherosnacionalidades"));
@@ -514,12 +533,26 @@ public class Main {
 		return ret;
 	}
 
+	/**
+	 * Método para conseguir el valor de los nodos de un XML
+	 * @param etiqueta
+	 * @param elem
+	 * @return String del valor del Nodo
+	 */
 	private static String getNodo(String etiqueta, Element elem){
 		NodeList nodo=elem.getElementsByTagName(etiqueta).item(0).getChildNodes();
 		Node valorNodo = (Node) nodo.item(0);
 		return valorNodo.getNodeValue();
 	}
 
+	/**
+	 * Método para comprobar que el registro de nueva persona no esté ya disponible en el fichero
+	 * de credenciales
+	 * @param valido
+	 * @param user
+	 * @param correo
+	 * @return Booleano indicando validez de los parámetros
+	 */
 	private static boolean comprobarRegistroExistente(boolean valido,
 			String user, String correo) {
 		FileReader lector = null;
@@ -562,7 +595,6 @@ public class Main {
 	 * 
 	 * @return el booleano esvalido para confirmar o negar la elección.
 	 */
-
 	public static boolean esValido() {
 		while (true) {
 			System.out.println("¿Quiere confirmar?");
@@ -577,6 +609,11 @@ public class Main {
 			}
 		}
 	}
+	
+	/**
+	 * Método para obtener el último ID de las personas registradas en el fichero de credenciales
+	 * @return Long del ID incrementado
+	 */
 	private static long obtenerUltimoId() {
 		Long ultimoId = 0L;
 		File fichero = new File(obtenerPropiedad("ficherocredenciales"));
@@ -607,6 +644,16 @@ public class Main {
 	}
 
 
+	/**
+	 * Método para escribir en el archivo credenciales los datos de la persona registrada
+	 * @param id
+	 * @param user
+	 * @param contrassenya
+	 * @param correo
+	 * @param nombre
+	 * @param nacionalidad
+	 * @param perfilReg
+	 */
 	private static void escribirEnArchivo(Long id, String user, String contrassenya, String correo, String nombre, String nacionalidad, Perfiles perfilReg) {
 
 		String ruta = obtenerPropiedad("ficherocredenciales");
@@ -631,6 +678,10 @@ public class Main {
 		}
 	}
 
+	
+	/**
+	 * Método para ver los espectáculos registrados
+	 */
 	public static void verEspectaculos() {
 		List<Espectaculo> espectaculos = new ArrayList<>();
 
